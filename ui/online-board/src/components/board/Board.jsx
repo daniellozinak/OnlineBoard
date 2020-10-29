@@ -1,14 +1,15 @@
 import React from 'react';
 import {Stage,Line,Layer,Text} from 'react-konva';
 import io from 'socket.io-client'
-import * as Constants from './../constants.js';
+import * as Constants from '../../util/constants.js';
+import * as MyMath from '../../util/math.js';
 
 class Board extends React.Component{
 
     lines = [];
     new_lines = [];
     line_pointer = 0;
-    socket = io.connect("http://localhost:5000");
+    socket = io.connect(Constants.LOCAL_SERVER);
     pan_position;
     
     constructor(props)
@@ -23,18 +24,19 @@ class Board extends React.Component{
             last_mouse_y: 0,
             current_scale: 1,
             scale_by: 1.05,
+            pan_by: 15
         }
 
     }
 
     componentDidMount()
     {
-        this.socket.on('canvas-data-initial',(data) => {
+        this.socket.on(Constants.INITIAL_CANVAS_DATA,(data) => {
             this.lines = data.content;
             this.line_pointer = data.pointer;
         })
 
-        this.socket.on('canvas-data',(data)=> {
+        this.socket.on(Constants.CANVAS_DATA,(data)=> {
             this.lines.push(data);
         })
     }
@@ -51,9 +53,11 @@ class Board extends React.Component{
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
-            e.evt.preventDefault();
             this.setState({is_panning: true});
 
+            //disable right click context-menu
+            e.evt.preventDefault();
+            //initial panning position
             this.pan_position = stage.getPointerPosition();
         }
         this.new_lines = [];
@@ -70,7 +74,6 @@ class Board extends React.Component{
         {
             this.setState({is_panning: false});
         }
-        this.setState({is_panning: false});
     }
 
     _onMouseMove = e =>{
@@ -94,15 +97,26 @@ class Board extends React.Component{
 
         if(this.state.is_panning)
         {
-            console.log("aa");
             var pointer = stage.getPointerPosition();
-            var mouse_screen_position = {
-                x: (this.pan_position.x - pointer.x),
-                y: (this.pan_position.y - pointer.y)
+
+            var new_position = { 
+                x: (pointer.x - this.pan_position.x),
+                y: (pointer.y - this.pan_position.y)
             }
 
-            stage.position(mouse_screen_position);
-            //this.forceUpdate(); 
+            new_position = MyMath.vector_normalize(new_position.x,new_position.y);
+            new_position.x *= this.state.pan_by;
+            new_position.y *= this.state.pan_by;
+            
+            var stage_position = {
+                x: stage.position().x + new_position.x,
+                y: stage.position().y + new_position.y,
+            }
+
+            console.log(pointer);
+            stage.batchDraw();
+            stage.position(stage_position);
+
             
         }
 
@@ -115,8 +129,12 @@ class Board extends React.Component{
         var old_scale = stage.scaleX();
         var pointer = stage.getPointerPosition();
 
+
+        // deltaY > 0 : ZOOM IN
+        // deltaY < 0 : ZOOM OUT
         var new_scale = e.evt.deltaY > 0 ? old_scale * this.state.scale_by : old_scale / this.state.scale_by;
 
+        //mouse position on the screen
         var mouse_screen_position = {
             x: (pointer.x - stage.x()) / old_scale,
             y: (pointer.y - stage.y()) / old_scale
