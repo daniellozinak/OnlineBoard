@@ -6,6 +6,7 @@ import * as MyMath from '../../util/math.js';
 import './style.css';
 
 import ColorPicker from '../color picker/ColorPicker';
+import SizePicker from '../size picker/SizePicker';
 
 class Board extends React.Component{
 
@@ -35,7 +36,7 @@ class Board extends React.Component{
             scale_by: 1.05,
             pan_by: 15,
             color: '#000000',
-            thickness: 15
+            thickness: 10
         }
 
     }
@@ -183,6 +184,11 @@ class Board extends React.Component{
         this.setState({color: in_color});
     }
 
+    change_size(in_size)
+    {
+        this.setState({thickness: in_size});
+    }
+
     //world coordinates
     getRelativePointerPosition(node) {
         var transform = node.getAbsoluteTransform().copy();
@@ -197,8 +203,11 @@ class Board extends React.Component{
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
                 <div className="panel" > Side Panel
-                    <div className="color-picker-1">-
+                    <div className="color-picker">-
                         <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
+                    </div>
+                    <div className="size-picker">-
+                        <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
                     </div>
                 </div>
                 <Stage className="board-stage" width={window.innerWidth} height={window.innerHeight}

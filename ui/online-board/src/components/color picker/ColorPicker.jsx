@@ -1,5 +1,5 @@
 import React from 'react';
-import {ChromePicker} from 'react-color';
+import {TwitterPicker} from 'react-color';
 
 class ColorPicker extends React.Component{
 
@@ -21,9 +21,9 @@ class ColorPicker extends React.Component{
     {
         return(
             <div className="color">
-                <button onClick={()=>this.setState({show: !this.state.show})}/>
+                <button onClick={()=>this.setState({show: !this.state.show})}></button>
                 {this.state.show && (
-                <ChromePicker 
+                <TwitterPicker  
                 color={this.state.color}
                 onChange={this._onChange.bind(this)}
                 />)}
