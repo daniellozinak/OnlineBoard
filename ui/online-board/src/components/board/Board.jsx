@@ -203,12 +203,14 @@ class Board extends React.Component{
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
                 <div className="panel" > Side Panel
-                    <div className="color-picker">-
+                <div classname="panel-wrapper">
+                    <div className="color-picker">
                         <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
                     </div>
-                    <div className="size-picker">-
+                    <div className="size-picker">
                         <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
                     </div>
+                </div>
                 </div>
                 <Stage className="board-stage" width={window.innerWidth} height={window.innerHeight}
                 onMouseDown ={this._onMouseDown.bind(this)}

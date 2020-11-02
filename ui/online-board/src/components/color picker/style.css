@@ -1,0 +1,14 @@
+.color{
+    position: relative;
+}
+
+.button{
+    position: absolute;
+    left:0em;
+    top:1em;
+}
+
+.picker{
+    position: absolute;
+    left: 4em;
+}

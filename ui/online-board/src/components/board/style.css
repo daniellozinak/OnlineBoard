@@ -1,31 +1,31 @@
 .board{
-    display: grid;
-    flex-direction: column-reverse;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    grid-template-areas: "overlap";
+    position: relative;
 }
 
 .panel{
-    justify-content: flex-start;
-    align-items: center;
-    grid-area: overlap;
+    position: absolute;
     z-index: 2;
-    width: 6%;
-    height: 40%;
-    background-color: #999999;
-    border-radius: 10%;
-    margin-left: 2%;
-    margin-top: 2%;
+    top: 5em;
+    left: 2em;
+    height: 10em;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    width: 5em;
+    display: list-item;
 }
 
-.board-stage{
-    grid-area: overlap;
+.panel-wrapper{
+    position: relative;
 }
 
-.color-picker-1{
-    margin-top: 10%;
+.color-picker{
+   position: absolute;
+   left:2em;
 }
-.color-picker-2{
-    margin-top: 10%;
+
+.size-picker{
+    position: absolute;
+    top:2em;
+    left:2em;
 }

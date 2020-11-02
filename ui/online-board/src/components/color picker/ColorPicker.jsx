@@ -1,5 +1,6 @@
 import React from 'react';
 import {TwitterPicker} from 'react-color';
+import './style.css';
 
 class ColorPicker extends React.Component{
 
@@ -8,7 +9,7 @@ class ColorPicker extends React.Component{
         super(props);
         this.state = {
             color: "#000000",
-            show: false,
+            show: true,
         }
     }
 
@@ -21,9 +22,9 @@ class ColorPicker extends React.Component{
     {
         return(
             <div className="color">
-                <button onClick={()=>this.setState({show: !this.state.show})}></button>
+                <button className="button" onClick={()=>this.setState({show: !this.state.show})}></button>
                 {this.state.show && (
-                <TwitterPicker  
+                <TwitterPicker  className="picker"
                 color={this.state.color}
                 onChange={this._onChange.bind(this)}
                 />)}

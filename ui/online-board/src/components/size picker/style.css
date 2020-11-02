@@ -1,0 +1,16 @@
+.size{
+    position: relative;
+    top:2em;
+}
+
+.button{
+    position: absolute;
+}
+
+.slider{
+    position: absolute;
+    left: 4em;
+    width: 10em !important;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
