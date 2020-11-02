@@ -1,5 +1,5 @@
 import React from 'react';
-import {Stage,Line,Layer, Circle} from 'react-konva';
+import {Stage,Line,Layer, Circle,Rect} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
 import * as MyMath from '../../util/math.js';
@@ -46,7 +46,7 @@ class Board extends React.Component{
             pan_by: 15,
             color: '#000000',
             thickness: 10,
-            mode: mode.CIRCLE
+            mode: mode.RECTANGLE
         }
 
     }
@@ -113,6 +113,11 @@ class Board extends React.Component{
 
             this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
             this.setState({mouse_y: this.getRelativePointerPosition(stage).y});
+
+
+            let dx = this.initial_click_position.x - this.getRelativePointerPosition(stage).x;
+            let dy = this.initial_click_position.y - this.getRelativePointerPosition(stage).y;
+
             switch(this.state.mode)
             {
                 case mode.FREE_DRAW:
@@ -129,9 +134,6 @@ class Board extends React.Component{
                         thickness: this.state.thickness,
                         type: 'line'
                     }
-                
-                    //update the new line
-                    this.entities[this.line_pointer] = this.new_entity;
                     break;
                 case mode.LINE:
                     //update only last position
@@ -147,15 +149,10 @@ class Board extends React.Component{
                         thickness: this.state.thickness,
                         type: 'line'
                     }
-                    
-                    //update the new line
-                    this.entities[this.line_pointer] = this.new_entity;
 
                     break;
                 case mode.CIRCLE:
-                    let x = this.initial_click_position.x - this.getRelativePointerPosition(stage).x;
-                    let y = this.initial_click_position.y - this.getRelativePointerPosition(stage).y;
-                    var radius = Math.sqrt(x*x + y*y);
+                    var radius = Math.sqrt(dx*dx + dy*dy);
                     
                     this.new_entity={
                         x: this.getRelativePointerPosition(stage).x,
@@ -165,13 +162,20 @@ class Board extends React.Component{
                         thickness: this.state.thickness,
                         type: 'circle'
                     }
-                    this.entities[this.line_pointer] = this.new_entity;
-
-
                     break;
                 case mode.RECTANGLE:
+                    this.new_entity={
+                        x: this.initial_click_position.x,
+                        y: this.initial_click_position.y,
+                        width : -1*dx,
+                        height: -1*dy,
+                        color: this.state.color,
+                        thickness: this.state.thickness,
+                        type: 'rectangle'
+                    }
                     break;
             }
+            this.entities[this.line_pointer] = this.new_entity;
         
             stage.batchDraw();
 
@@ -278,36 +282,46 @@ class Board extends React.Component{
                 onMouseMove ={this._onMouseMove.bind(this)}
                 onWheel     ={this._onWheel.bind(this)}>
                     <Layer>
-                        {items.map((line,i) =>
+                        {items.map((entity,i) =>
                         { 
-                            if(line.type==='line')
+                            if(entity.type==='line')
                             {
                                 return (
                                     <Line 
                                         key={i}
-                                        points={line.lines}
-                                        stroke={line.color}
-                                        strokeWidth={line.thickness}
+                                        points={entity.lines}
+                                        stroke={entity.color}
+                                        strokeWidth={entity.thickness}
                                         lineCap={'round'}
                                         lineJoin={'round'}>
                                     </Line>)
                             }
-                            else if(line.type === 'circle')
+                            else if(entity.type === 'circle')
                             {
                                 return (
                                     <Circle
                                         key={i}
-                                        x={line.x}
-                                        y={line.y}
-                                        radius={line.radius}
-                                        stroke={line.color}
-                                        strokeWidth={line.thickness}
+                                        x={entity.x}
+                                        y={entity.y}
+                                        radius={entity.radius}
+                                        stroke={entity.color}
+                                        strokeWidth={entity.thickness}
                                     />
                                 )
                             }
-                            else if(line.type == 'rectangle')
+                            else if(entity.type === 'rectangle')
                             {
-
+                                return (
+                                    <Rect
+                                    key={i}
+                                    x={entity.x}
+                                    y={entity.y}
+                                    width={entity.width}
+                                    height={entity.height}
+                                    stroke={entity.color}
+                                    strokeWidth={entity.thickness}
+                                    />
+                                )
                             }
                         })}
                     </Layer>
