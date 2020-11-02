@@ -1,5 +1,5 @@
 import React from 'react';
-import {Stage,Line,Layer} from 'react-konva';
+import {Stage,Line,Layer, Circle} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
 import * as MyMath from '../../util/math.js';
@@ -8,9 +8,16 @@ import './style.css';
 import ColorPicker from '../color picker/ColorPicker';
 import SizePicker from '../size picker/SizePicker';
 
+const mode = {
+    FREE_DRAW: 'free-draw',
+    LINE: 'line',
+    CIRCLE: 'circle',
+    RECTANGLE: 'rectangle'
+}
+
 class Board extends React.Component{
 
-    lines = [];
+    entities = [];
     new_line = {
         lines: [],
         color: '#000000',
@@ -18,6 +25,8 @@ class Board extends React.Component{
     };
     new_line_position = [];
     line_pointer = 0;
+
+    initial_click_position = null;
 
     socket = io.connect(Constants.LOCAL_SERVER);
     pan_position;
@@ -36,7 +45,8 @@ class Board extends React.Component{
             scale_by: 1.05,
             pan_by: 15,
             color: '#000000',
-            thickness: 10
+            thickness: 10,
+            mode: mode.FREE_DRAW
         }
 
     }
@@ -44,12 +54,12 @@ class Board extends React.Component{
     componentDidMount()
     {
         this.socket.on(Constants.INITIAL_CANVAS_DATA,(data) => {
-            this.lines = data.content;
+            this.entities = data.content;
             this.line_pointer = data.pointer;
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
-            this.lines.push(data);
+            this.entities.push(data);
             this.line_pointer +=1;
         })
     }
@@ -63,6 +73,8 @@ class Board extends React.Component{
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.setState({is_drawing: true});
+            this.initial_click_position = this.getRelativePointerPosition(stage);
+            console.log(this.initial_click_position);
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
@@ -73,6 +85,7 @@ class Board extends React.Component{
             //initial panning position
             this.pan_position = stage.getPointerPosition();
         }
+        //clear new line position array
         this.new_line_position = [];
     }
     
@@ -81,10 +94,10 @@ class Board extends React.Component{
         {
             this.setState({is_drawing: false});
         
-            //this.lines[this.line_pointer] = this.new_line;
             this.line_pointer +=1;
 
-            this.socket.emit("canvas-data",this.new_line);
+            //emit new line
+            this.socket.emit(Constants.CANVAS_DATA  ,this.new_line);
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
@@ -97,22 +110,54 @@ class Board extends React.Component{
 
         if(this.state.is_drawing)
         {
+
             this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
             this.setState({mouse_y: this.getRelativePointerPosition(stage).y});
-            
-            this.new_line_position.push(this.state.last_mouse_x);
-            this.new_line_position.push(this.state.last_mouse_y);
-            this.new_line_position.push(this.state.mouse_x);
-            this.new_line_position.push(this.state.mouse_y);
+            switch(this.state.mode)
+            {
+                case mode.FREE_DRAW:
+                    //add new positions
+                    this.new_line_position.push(this.state.last_mouse_x);
+                    this.new_line_position.push(this.state.last_mouse_y);
+                    this.new_line_position.push(this.state.mouse_x);
+                    this.new_line_position.push(this.state.mouse_y);
 
-            this.new_line = {
-                lines: this.new_line_position,
-                color: this.state.color,
-                thickness: this.state.thickness
+                    //create new line
+                    this.new_line = {
+                        lines: this.new_line_position,
+                        color: this.state.color,
+                        thickness: this.state.thickness,
+                        type: 'line'
+                    }
+                
+                    //update the new line
+                    this.entities[this.line_pointer] = this.new_line;
+                    break;
+                case mode.LINE:
+                    //update only last position
+                    this.new_line_position[0] = this.initial_click_position.x;
+                    this.new_line_position[1] = this.initial_click_position.y;
+                    this.new_line_position[2] = this.getRelativePointerPosition(stage).x;
+                    this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
+
+                    //create new line
+                    this.new_line = {
+                        lines: this.new_line_position,
+                        color: this.state.color,
+                        thickness: this.state.thickness,
+                        type: 'line'
+                    }
+                    
+                    //update the new line
+                    this.entities[this.line_pointer] = this.new_line;
+
+                    break;
+                case mode.RECTANGLE:
+                    break;
+                case mode.CIRCLE:
+                    break;
             }
         
-
-            this.lines[this.line_pointer] = this.new_line;
             stage.batchDraw();
 
             //set the last mouse coordinates
@@ -199,7 +244,7 @@ class Board extends React.Component{
     }
 
     render(){
-        const items = this.lines;
+        const items = this.entities;
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
                 <div className="panel" > Side Panel
@@ -219,14 +264,28 @@ class Board extends React.Component{
                 onWheel     ={this._onWheel.bind(this)}>
                     <Layer>
                         {items.map((line,i) =>
-                        <Line 
-                            key={i}
-                            points={line.lines}
-                            stroke={line.color}
-                            strokeWidth={line.thickness}
-                            lineCap={'round'}
-                            lineJoin={'round'}>
-                        </Line>)}
+                        { 
+                            if(line.type==='line')
+                            {
+                                return (
+                                    <Line 
+                                        key={i}
+                                        points={line.lines}
+                                        stroke={line.color}
+                                        strokeWidth={line.thickness}
+                                        lineCap={'round'}
+                                        lineJoin={'round'}>
+                                    </Line>)
+                            }
+                            else if(line.type === 'circle')
+                            {
+                                
+                            }
+                            else if(line.type == 'rectangle')
+                            {
+
+                            }
+                        })}
                     </Layer>
                 </Stage>
             </div>

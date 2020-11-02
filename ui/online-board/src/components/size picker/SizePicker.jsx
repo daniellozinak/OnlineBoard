@@ -9,7 +9,7 @@ class SizePicker extends React.Component{
         super(props);
         this.state={
             value: 10,
-            show: true,
+            show: false,
         }
     }
 
@@ -28,7 +28,7 @@ class SizePicker extends React.Component{
                     className="slider"
                     defaultValue={10}
                     aria-labelledby="discrete-slider-always"
-                    step={2}
+                    step={1}
                     valueLabelDisplay="on"
                     value={this.state.value}
                     onChange={this._onChange.bind(this)}
