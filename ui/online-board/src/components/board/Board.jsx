@@ -18,7 +18,7 @@ const mode = {
 class Board extends React.Component{
 
     entities = [];
-    new_line = {
+    new_entity = {
         lines: [],
         color: '#000000',
         thickness: 1
@@ -46,7 +46,7 @@ class Board extends React.Component{
             pan_by: 15,
             color: '#000000',
             thickness: 10,
-            mode: mode.FREE_DRAW
+            mode: mode.CIRCLE
         }
 
     }
@@ -97,7 +97,7 @@ class Board extends React.Component{
             this.line_pointer +=1;
 
             //emit new line
-            this.socket.emit(Constants.CANVAS_DATA  ,this.new_line);
+            this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
@@ -123,7 +123,7 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_line = {
+                    this.new_entity = {
                         lines: this.new_line_position,
                         color: this.state.color,
                         thickness: this.state.thickness,
@@ -131,7 +131,7 @@ class Board extends React.Component{
                     }
                 
                     //update the new line
-                    this.entities[this.line_pointer] = this.new_line;
+                    this.entities[this.line_pointer] = this.new_entity;
                     break;
                 case mode.LINE:
                     //update only last position
@@ -141,7 +141,7 @@ class Board extends React.Component{
                     this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
 
                     //create new line
-                    this.new_line = {
+                    this.new_entity = {
                         lines: this.new_line_position,
                         color: this.state.color,
                         thickness: this.state.thickness,
@@ -149,12 +149,27 @@ class Board extends React.Component{
                     }
                     
                     //update the new line
-                    this.entities[this.line_pointer] = this.new_line;
+                    this.entities[this.line_pointer] = this.new_entity;
+
+                    break;
+                case mode.CIRCLE:
+                    let x = this.initial_click_position.x - this.getRelativePointerPosition(stage).x;
+                    let y = this.initial_click_position.y - this.getRelativePointerPosition(stage).y;
+                    var radius = Math.sqrt(x*x + y*y);
+                    
+                    this.new_entity={
+                        x: this.getRelativePointerPosition(stage).x,
+                        y: this.getRelativePointerPosition(stage).y,
+                        radius: radius,
+                        color: this.state.color,
+                        thickness: this.state.thickness,
+                        type: 'circle'
+                    }
+                    this.entities[this.line_pointer] = this.new_entity;
+
 
                     break;
                 case mode.RECTANGLE:
-                    break;
-                case mode.CIRCLE:
                     break;
             }
         
@@ -279,7 +294,16 @@ class Board extends React.Component{
                             }
                             else if(line.type === 'circle')
                             {
-                                
+                                return (
+                                    <Circle
+                                        key={i}
+                                        x={line.x}
+                                        y={line.y}
+                                        radius={line.radius}
+                                        stroke={line.color}
+                                        strokeWidth={line.thickness}
+                                    />
+                                )
                             }
                             else if(line.type == 'rectangle')
                             {
