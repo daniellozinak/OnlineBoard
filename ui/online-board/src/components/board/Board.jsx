@@ -7,13 +7,7 @@ import './style.css';
 
 import ColorPicker from '../color picker/ColorPicker';
 import SizePicker from '../size picker/SizePicker';
-
-const mode = {
-    FREE_DRAW: 'free-draw',
-    LINE: 'line',
-    CIRCLE: 'circle',
-    RECTANGLE: 'rectangle'
-}
+import ModePicker from '../mode picker/ModePicker';
 
 class Board extends React.Component{
 
@@ -46,7 +40,7 @@ class Board extends React.Component{
             pan_by: 15,
             color: '#000000',
             thickness: 10,
-            mode: mode.RECTANGLE
+            mode: Constants.MODE.FREE_DRAW
         }
 
     }
@@ -74,7 +68,6 @@ class Board extends React.Component{
         {
             this.setState({is_drawing: true});
             this.initial_click_position = this.getRelativePointerPosition(stage);
-            console.log(this.initial_click_position);
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
@@ -120,7 +113,7 @@ class Board extends React.Component{
 
             switch(this.state.mode)
             {
-                case mode.FREE_DRAW:
+                case Constants.MODE.FREE_DRAW:
                     //add new positions
                     this.new_line_position.push(this.state.last_mouse_x);
                     this.new_line_position.push(this.state.last_mouse_y);
@@ -135,7 +128,7 @@ class Board extends React.Component{
                         type: 'line'
                     }
                     break;
-                case mode.LINE:
+                case Constants.MODE.LINE:
                     //update only last position
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
@@ -151,7 +144,7 @@ class Board extends React.Component{
                     }
 
                     break;
-                case mode.CIRCLE:
+                case Constants.MODE.CIRCLE:
                     var radius = Math.sqrt(dx*dx + dy*dy);
                     
                     this.new_entity={
@@ -163,7 +156,7 @@ class Board extends React.Component{
                         type: 'circle'
                     }
                     break;
-                case mode.RECTANGLE:
+                case Constants.MODE.RECTANGLE:
                     this.new_entity={
                         x: this.initial_click_position.x,
                         y: this.initial_click_position.y,
@@ -253,6 +246,11 @@ class Board extends React.Component{
         this.setState({thickness: in_size});
     }
 
+    change_mode(in_mode)
+    {
+        this.setState({mode: in_mode});
+    }
+
     //world coordinates
     getRelativePointerPosition(node) {
         var transform = node.getAbsoluteTransform().copy();
@@ -273,6 +271,9 @@ class Board extends React.Component{
                     </div>
                     <div className="size-picker">
                         <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
+                    </div>
+                    <div className="mode-picker"> 
+                        <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
                     </div>
                 </div>
                 </div>

@@ -22,7 +22,7 @@ class ColorPicker extends React.Component{
     {
         return(
             <div className="color">
-                <button className="button" onClick={()=>this.setState({show: !this.state.show})}></button>
+                <button className="button" onClick={()=>this.setState({show: !this.state.show})}>Color</button>
                 {this.state.show && (
                 <TwitterPicker  className="picker"
                 color={this.state.color}

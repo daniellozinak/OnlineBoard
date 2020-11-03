@@ -22,7 +22,7 @@ class SizePicker extends React.Component{
     render(){
         return(
             <div className="size">
-                <button  className="button" onClick={() => this.setState({show: !this.state.show})}></button>
+                <button  className="button" onClick={() => this.setState({show: !this.state.show})}>Size</button>
                 {this.state.show &&
                     <Slider
                     className="slider"
