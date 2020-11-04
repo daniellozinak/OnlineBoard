@@ -8,6 +8,7 @@ import './style.css';
 import ColorPicker from '../color picker/ColorPicker';
 import SizePicker from '../size picker/SizePicker';
 import ModePicker from '../mode picker/ModePicker';
+import MathPicker from '../math picker/MathPicker';
 
 class Board extends React.Component{
 
@@ -274,6 +275,9 @@ class Board extends React.Component{
                     </div>
                     <div className="mode-picker"> 
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
+                    </div>
+                    <div className="math-picker">
+                        <MathPicker></MathPicker>
                     </div>
                 </div>
                 </div>

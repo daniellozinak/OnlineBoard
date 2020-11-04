@@ -15,6 +15,7 @@ class ModePicker extends React.Component{
     _onClick(mode)
     {
         this.props.data.change_mode_function(mode);
+        this.setState({show:false})
     }
 
     render(){

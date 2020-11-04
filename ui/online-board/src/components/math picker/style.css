@@ -1,0 +1,13 @@
+.root-input-wrapper{
+    position: relative;
+}
+
+
+.math-panel-wrapper{
+    position: relative;
+    left:4em;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color:#FFFFFF;
+    width: 10em;
+}

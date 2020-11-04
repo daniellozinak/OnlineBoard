@@ -7,7 +7,7 @@
     z-index: 2;
     top: 5em;
     left: 2em;
-    height: 10em;
+    height: 12em;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f0f0f0;
@@ -34,4 +34,10 @@
     position: absolute;
     left:2em;
     top:6.5em;
+}
+
+.math-picker{
+    position: absolute;
+    left:2em;
+    top:9em;
 }

@@ -15,6 +15,7 @@ class ColorPicker extends React.Component{
 
     _onChange = e =>{
         this.setState({color: e.hex});
+        this.setState({show:false});
         this.props.data.change_color_function(e.hex);
     }
 
@@ -24,7 +25,8 @@ class ColorPicker extends React.Component{
             <div className="color">
                 <button className="button" onClick={()=>this.setState({show: !this.state.show})}>Color</button>
                 {this.state.show && (
-                <TwitterPicker  className="picker"
+                <TwitterPicker
+                className="picker"
                 color={this.state.color}
                 onChange={this._onChange.bind(this)}
                 />)}
