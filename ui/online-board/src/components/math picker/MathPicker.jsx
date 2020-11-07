@@ -1,20 +1,29 @@
 import React from 'react';
 import './style.css';
-import TextField from "input-material-ui";
-import { addStyles, EditableMathField } from 'react-mathquill'
+import { addStyles, EditableMathField,MathField } from 'react-mathquill'
 
 addStyles()
 
+var Direction = {
+    LEFT : "Left",
+    RIGHT: "Right",
+    UP   : "Up",
+    DOWN : "Down"
+}
+
 class MathPicker extends React.Component{
+
     constructor(props)
     {
-        super(props)
-        {
-            this.state={
-                show: false,
-                text:"\log_{ }",
-            }
+        super(props);
+        this.state={
+            show: false,
         }
+
+        this.math_field = null;
+    }
+
+    componentDidMount(){
     }
 
     _onClick = e =>{
@@ -22,35 +31,55 @@ class MathPicker extends React.Component{
     }
 
     _onChange = e =>{
-        this.setState({text:e});
-        console.log(e);
+        if(this.math_field == null)
+        {
+            this.math_field = e;
+           this.math_field.latex("");
+        }
+        this.setState({text:e.latex()});
+        //console.log(e);
+
+        console.log(e.text());
     }
 
-
     _onAddSign(sign){
+        if(this.math_field != null){
+            this.math_field.write(sign);
+        }
+    }
 
-        this.setState({text: this.state.text + sign});
+    _onMove(dir)
+    {
+        this.math_field.keystroke(dir);
+    }
+
+    _onDispatchEvent =e =>{
+        //console.log(e.target);
     }
 
     _locateElement = e =>{
-        console.log(e);
+
     }
 
+    //TODO : add style, more buttons
     render(){
         return(
             <div className="math">
                 <button onClick={this._onClick.bind(this)} className="button">Math</button>
                 {this.state.show &&
                     <div className="math-panel-wrapper">
-                        <div classNam="math-panel-buttons">
+                        <div className="math-panel-buttons">
                             <button onClick={()=>this._onAddSign("∫")}>∫</button>
                             <button onClick={()=>this._onAddSign("∑")}>∑</button>
+                            <button onClick={()=>this._onMove(Direction.UP)}>up</button>
+                            <button onClick={()=>this._onMove(Direction.DOWN)}>down</button>
+                            <button onClick={()=>this._onMove(Direction.RIGHT)}>right</button>
+                            <button onClick={()=>this._onMove(Direction.LEFT)}>left</button>
                         </div>
                         <div className="root-input-wrapper">
                         <EditableMathField
-                            latex={this.state.text}
                             onChange={(mathField) => {
-                                this._onChange(mathField.latex())
+                                this._onChange(mathField)
                               }}
                             onClick={this._locateElement.bind(this)}
                         />

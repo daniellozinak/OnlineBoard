@@ -168,6 +168,8 @@ class Board extends React.Component{
                         type: 'rectangle'
                     }
                     break;
+                default:
+                    break;
             }
             this.entities[this.line_pointer] = this.new_entity;
         
@@ -281,7 +283,8 @@ class Board extends React.Component{
                     </div>
                 </div>
                 </div>
-                <Stage className="board-stage" width={window.innerWidth} height={window.innerHeight}
+                <Stage className="board-stage" 
+                width={window.innerWidth} height={window.innerHeight}
                 onMouseDown ={this._onMouseDown.bind(this)}
                 onMouseUp   ={this._onMouseUp.bind(this)}
                 onMouseMove ={this._onMouseMove.bind(this)}
