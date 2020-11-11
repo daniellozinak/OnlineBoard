@@ -11,6 +11,26 @@ var Direction = {
     DOWN : "Down"
 }
 
+var config = {
+    spaceBehavesLikeTab: true,
+    leftRightIntoCmdGoes: 'up',
+    restrictMismatchedBrackets: true,
+    sumStartsWithNEquals: true,
+    supSubsRequireOperand: true,
+    charsThatBreakOutOfSupSub: '+-=<>',
+    autoSubscriptNumerals: true,
+    autoCommands: 'pi theta sqrt sum',
+    autoOperatorNames: 'sin cos',
+    maxDepth: 10,
+    substituteTextarea: function() {
+      return document.createElement('textarea');
+    },
+    handlers: {
+      edit: function(mathField) {  },
+      upOutOf: function(mathField) {  },
+    }
+  };
+
 class MathPicker extends React.Component{
 
     constructor(props)
@@ -31,6 +51,7 @@ class MathPicker extends React.Component{
     }
 
     _onChange = e =>{
+        if(e === undefined){return;}
         if(this.math_field == null || e.latex() === "undefined")
         {
             this.math_field = e;
@@ -38,11 +59,13 @@ class MathPicker extends React.Component{
             console.log("init");
             return;
         }
-        //this.math_field.latex("");
+
         this.setState({text:e.latex()});
         this.math_field.focus();
 
-        console.log("_onchange: " + e.latex());
+        console.log(e.el());
+        //send html to Board
+        this.getHTMLElement();
     }
 
     _onAddSign(sign){
@@ -54,21 +77,18 @@ class MathPicker extends React.Component{
     _onMove(dir)
     {
         this.math_field.keystroke(dir);
+        this.math_field.focus();
     }
 
     clear = e =>{
         this.math_field.latex("");
     }
 
-    _onDispatchEvent =e =>{
-        //console.log(e.target);
+    getHTMLElement()
+    {
+        this.props.data.send_html_function("https://math.now.sh?from=" + this.math_field.latex());
     }
 
-    _locateElement = e =>{
-
-    }
-
-    //TODO : add style, more buttons
     render(){
         return(
             <div className="math">
@@ -99,10 +119,11 @@ class MathPicker extends React.Component{
                         </div>
                         <div className="root-input-wrapper">
                         <EditableMathField
+                            config={config}
+                            className="math-field"
                             onChange={(mathField) => {
                                 this._onChange(mathField)
                               }}
-                            onClick={this._locateElement.bind(this)}
                         />
                         </div>
                     </div>

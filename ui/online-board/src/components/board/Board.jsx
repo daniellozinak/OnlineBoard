@@ -10,6 +10,7 @@ import SizePicker from '../size picker/SizePicker';
 import ModePicker from '../mode picker/ModePicker';
 import MathPicker from '../math picker/MathPicker';
 
+//TODO: add equations
 class Board extends React.Component{
 
     entities = [];
@@ -41,7 +42,8 @@ class Board extends React.Component{
             pan_by: 15,
             color: '#000000',
             thickness: 10,
-            mode: Constants.MODE.FREE_DRAW
+            mode: Constants.MODE.FREE_DRAW,
+            math_field: null,
         }
 
     }
@@ -254,6 +256,14 @@ class Board extends React.Component{
         this.setState({mode: in_mode});
     }
 
+
+    getMathHTML(html)
+    {
+        this.setState({math_field: html}); 
+        console.log("Board: ");
+        console.log(html);
+    }
+
     //world coordinates
     getRelativePointerPosition(node) {
         var transform = node.getAbsoluteTransform().copy();
@@ -267,6 +277,11 @@ class Board extends React.Component{
         const items = this.entities;
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
+                {this.state.math_field != null && 
+                <div className="image">
+                    <img src={this.state.math_field}/>
+                </div>
+                }
                 <div className="panel" > Side Panel
                 <div classname="panel-wrapper">
                     <div className="color-picker">
@@ -279,10 +294,10 @@ class Board extends React.Component{
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
                     </div>
                     <div className="math-picker">
-                        <MathPicker></MathPicker>
+                        <MathPicker data={{send_html_function: this.getMathHTML.bind(this)}}></MathPicker>
                     </div>
                 </div>
-                </div>
+            </div>
                 <Stage className="board-stage" 
                 width={window.innerWidth} height={window.innerHeight}
                 onMouseDown ={this._onMouseDown.bind(this)}
@@ -331,6 +346,7 @@ class Board extends React.Component{
                                     />
                                 )
                             }
+
                         })}
                     </Layer>
                 </Stage>
