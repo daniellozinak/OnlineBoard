@@ -40,6 +40,10 @@ class ModePicker extends React.Component{
                         <button className="rect-buton" onClick={()=>this._onClick(Constants.MODE.RECTANGLE)}>
                         RECT</button>
                     </div>
+                    <div className="math">
+                        <button className="rect-buton" onClick={()=>this._onClick(Constants.MODE.MATH_FIELD)}>
+                        MATH</button>
+                    </div>
                 
                 </div>}
             </div>

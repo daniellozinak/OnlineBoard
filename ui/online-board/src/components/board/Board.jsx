@@ -1,5 +1,5 @@
 import React from 'react';
-import {Stage,Line,Layer, Circle,Rect} from 'react-konva';
+import {Stage,Line,Layer, Circle,Rect,Image} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
 import * as MyMath from '../../util/math.js';
@@ -9,6 +9,10 @@ import ColorPicker from '../color picker/ColorPicker';
 import SizePicker from '../size picker/SizePicker';
 import ModePicker from '../mode picker/ModePicker';
 import MathPicker from '../math picker/MathPicker';
+import Konva from 'konva';
+
+var test_image = new window.Image();
+test_image.src = "https://math.now.sh?from=\int_1^2x^2";
 
 //TODO: add equations
 class Board extends React.Component{
@@ -83,6 +87,18 @@ class Board extends React.Component{
         }
         //clear new line position array
         this.new_line_position = [];
+
+        if(this.state.mode === Constants.MODE.MATH_FIELD)
+        {
+            if(this.state.math_field === Constants.LATEX_TO_IMAGE || this.state.math_field ===null) {return;}
+            this.new_entity={
+                x: this.state.mouse_x,
+                y: this.state.mouse_y,
+                src: this.state.math_field,
+                type: Constants.MODE.MATH_FIELD
+            }
+            this.entities[this.line_pointer] = this.new_entity;
+        }
     }
     
     _onMouseUp = e =>{
@@ -113,7 +129,6 @@ class Board extends React.Component{
 
             let dx = this.initial_click_position.x - this.getRelativePointerPosition(stage).x;
             let dy = this.initial_click_position.y - this.getRelativePointerPosition(stage).y;
-
             switch(this.state.mode)
             {
                 case Constants.MODE.FREE_DRAW:
@@ -128,7 +143,7 @@ class Board extends React.Component{
                         lines: this.new_line_position,
                         color: this.state.color,
                         thickness: this.state.thickness,
-                        type: 'line'
+                        type: Constants.MODE.LINE
                     }
                     break;
                 case Constants.MODE.LINE:
@@ -143,7 +158,7 @@ class Board extends React.Component{
                         lines: this.new_line_position,
                         color: this.state.color,
                         thickness: this.state.thickness,
-                        type: 'line'
+                        type: Constants.MODE.LINE
                     }
 
                     break;
@@ -156,7 +171,7 @@ class Board extends React.Component{
                         radius: radius,
                         color: this.state.color,
                         thickness: this.state.thickness,
-                        type: 'circle'
+                        type: Constants.MODE.CIRCLE
                     }
                     break;
                 case Constants.MODE.RECTANGLE:
@@ -167,8 +182,18 @@ class Board extends React.Component{
                         height: -1*dy,
                         color: this.state.color,
                         thickness: this.state.thickness,
-                        type: 'rectangle'
+                        type: Constants.MODE.RECTANGLE
                     }
+                    break;
+                case Constants.MODE.MATH_FIELD:
+                    if(this.state.math_field === Constants.LATEX_TO_IMAGE || this.state.math_field ===null) {return;}
+                    this.new_entity={
+                        x: this.initial_click_position.x,
+                        y: this.initial_click_position.y,
+                        src: this.state.math_field,
+                        type: Constants.MODE.MATH_FIELD
+                    }
+                    console.log(this.entities);
                     break;
                 default:
                     break;
@@ -257,11 +282,9 @@ class Board extends React.Component{
     }
 
 
-    getMathHTML(html)
+    getLatexMath(html)
     {
         this.setState({math_field: html}); 
-        console.log("Board: ");
-        console.log(html);
     }
 
     //world coordinates
@@ -277,11 +300,6 @@ class Board extends React.Component{
         const items = this.entities;
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
-                {this.state.math_field != null && 
-                <div className="image">
-                    <img src={this.state.math_field}/>
-                </div>
-                }
                 <div className="panel" > Side Panel
                 <div classname="panel-wrapper">
                     <div className="color-picker">
@@ -294,7 +312,7 @@ class Board extends React.Component{
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
                     </div>
                     <div className="math-picker">
-                        <MathPicker data={{send_html_function: this.getMathHTML.bind(this)}}></MathPicker>
+                        <MathPicker data={{send_html_function: this.getLatexMath.bind(this)}}></MathPicker>
                     </div>
                 </div>
             </div>
@@ -307,7 +325,7 @@ class Board extends React.Component{
                     <Layer>
                         {items.map((entity,i) =>
                         { 
-                            if(entity.type==='line')
+                            if(entity.type===Constants.MODE.LINE)
                             {
                                 return (
                                     <Line 
@@ -319,7 +337,7 @@ class Board extends React.Component{
                                         lineJoin={'round'}>
                                     </Line>)
                             }
-                            else if(entity.type === 'circle')
+                            else if(entity.type === Constants.MODE.CIRCLE)
                             {
                                 return (
                                     <Circle
@@ -332,7 +350,7 @@ class Board extends React.Component{
                                     />
                                 )
                             }
-                            else if(entity.type === 'rectangle')
+                            else if(entity.type === Constants.MODE.RECTANGLE)
                             {
                                 return (
                                     <Rect
@@ -343,6 +361,19 @@ class Board extends React.Component{
                                     height={entity.height}
                                     stroke={entity.color}
                                     strokeWidth={entity.thickness}
+                                    />
+                                )
+                            }
+                            else if(entity.type === Constants.MODE.MATH_FIELD)
+                            {
+                                var temp_image = new window.Image();
+                                temp_image.src = entity.src;
+                                return(
+                                    <Image
+                                    key={i}
+                                    x={entity.x}
+                                    y={entity.y}
+                                    image={temp_image}
                                     />
                                 )
                             }
