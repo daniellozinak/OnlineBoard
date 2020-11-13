@@ -11,5 +11,6 @@ export const MODE = {
     LINE: 'line',
     CIRCLE: 'circle',
     RECTANGLE: 'rectangle',
-    MATH_FIELD: 'math-field'
+    MATH_FIELD: 'math-field',
+    SELECT: 'select'
 }

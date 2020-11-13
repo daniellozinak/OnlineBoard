@@ -1,28 +1,27 @@
 import React from 'react';
-import {Stage,Line,Layer, Circle,Rect,Image} from 'react-konva';
+import {Stage,Layer} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
 import * as MyMath from '../../util/math.js';
 import './style.css';
 
+import {Drawable} from '../../shapes/Drawable.js'
+import {MLine} from '../../shapes/MLine.js';
+import {MCircle} from '../../shapes/MCircle.js';
+import {MRect} from '../../shapes/MRect.js';
+import {MField} from '../../shapes/MField.js';
+
 import ColorPicker from '../color picker/ColorPicker';
 import SizePicker from '../size picker/SizePicker';
 import ModePicker from '../mode picker/ModePicker';
 import MathPicker from '../math picker/MathPicker';
-import Konva from 'konva';
 
-var test_image = new window.Image();
-test_image.src = "https://math.now.sh?from=\int_1^2x^2";
 
 //TODO: add equations
 class Board extends React.Component{
 
     entities = [];
-    new_entity = {
-        lines: [],
-        color: '#000000',
-        thickness: 1
-    };
+    new_entity = null;
     new_line_position = [];
     line_pointer = 0;
 
@@ -44,7 +43,7 @@ class Board extends React.Component{
             current_scale: 1,
             scale_by: 1.05,
             pan_by: 15,
-            color: '#000000',
+            color: '#ABB8C3',
             thickness: 10,
             mode: Constants.MODE.FREE_DRAW,
             math_field: null,
@@ -87,21 +86,28 @@ class Board extends React.Component{
         }
         //clear new line position array
         this.new_line_position = [];
-
         if(this.state.mode === Constants.MODE.MATH_FIELD)
         {
             if(this.state.math_field === Constants.LATEX_TO_IMAGE || this.state.math_field ===null) {return;}
-            this.new_entity={
-                x: this.state.mouse_x,
-                y: this.state.mouse_y,
-                src: this.state.math_field,
-                type: Constants.MODE.MATH_FIELD
-            }
+
+
+            this.new_line_position[0] = this.initial_click_position.x;
+            this.new_line_position[1] = this.initial_click_position.y;
+
+            this.new_entity = new MField(this.line_pointer,this.new_line_position,this.state.math_field);
+
+            // this.new_entity={
+            //     points: this.new_line_position,
+            //     src: this.state.math_field,
+            //     type: Constants.MODE.MATH_FIELD
+            // }
             this.entities[this.line_pointer] = this.new_entity;
+            
         }
     }
     
     _onMouseUp = e =>{
+        console.log(this.entities);
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.setState({is_drawing: false});
@@ -139,12 +145,8 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_entity = {
-                        lines: this.new_line_position,
-                        color: this.state.color,
-                        thickness: this.state.thickness,
-                        type: Constants.MODE.LINE
-                    }
+                    this.new_entity = new MLine(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
+
                     break;
                 case Constants.MODE.LINE:
                     //update only last position
@@ -154,51 +156,32 @@ class Board extends React.Component{
                     this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
 
                     //create new line
-                    this.new_entity = {
-                        lines: this.new_line_position,
-                        color: this.state.color,
-                        thickness: this.state.thickness,
-                        type: Constants.MODE.LINE
-                    }
+                    this.new_entity = new MLine(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.CIRCLE:
                     var radius = Math.sqrt(dx*dx + dy*dy);
-                    
-                    this.new_entity={
-                        x: this.getRelativePointerPosition(stage).x,
-                        y: this.getRelativePointerPosition(stage).y,
-                        radius: radius,
-                        color: this.state.color,
-                        thickness: this.state.thickness,
-                        type: Constants.MODE.CIRCLE
-                    }
+                    this.new_line_position[0] = this.getRelativePointerPosition(stage).x;
+                    this.new_line_position[1] = this.getRelativePointerPosition(stage).y;
+
+
+                    this.new_entity = new MCircle(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
                 case Constants.MODE.RECTANGLE:
-                    this.new_entity={
-                        x: this.initial_click_position.x,
-                        y: this.initial_click_position.y,
-                        width : -1*dx,
-                        height: -1*dy,
-                        color: this.state.color,
-                        thickness: this.state.thickness,
-                        type: Constants.MODE.RECTANGLE
-                    }
-                    break;
-                case Constants.MODE.MATH_FIELD:
-                    if(this.state.math_field === Constants.LATEX_TO_IMAGE || this.state.math_field ===null) {return;}
-                    this.new_entity={
-                        x: this.initial_click_position.x,
-                        y: this.initial_click_position.y,
-                        src: this.state.math_field,
-                        type: Constants.MODE.MATH_FIELD
-                    }
-                    console.log(this.entities);
-                    break;
+                    this.new_line_position[0] = this.initial_click_position.x;
+                    this.new_line_position[1] = this.initial_click_position.y;
+
+                    this.new_entity = new MRect(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,-1*dx,-1*dy);
+
+                    if(this.state.mode === Constants.MODE.SELECT)
+                        //colision check(this.new_entity,otherSapes)
+                        this.new_entity = null;
+                    break; 
                 default:
                     break;
             }
-            this.entities[this.line_pointer] = this.new_entity;
+            if(this.new_entity!== null)
+                this.entities[this.line_pointer] = this.new_entity;
         
             stage.batchDraw();
 
@@ -323,61 +306,9 @@ class Board extends React.Component{
                 onMouseMove ={this._onMouseMove.bind(this)}
                 onWheel     ={this._onWheel.bind(this)}>
                     <Layer>
-                        {items.map((entity,i) =>
+                        {items.map((entity) =>
                         { 
-                            if(entity.type===Constants.MODE.LINE)
-                            {
-                                return (
-                                    <Line 
-                                        key={i}
-                                        points={entity.lines}
-                                        stroke={entity.color}
-                                        strokeWidth={entity.thickness}
-                                        lineCap={'round'}
-                                        lineJoin={'round'}>
-                                    </Line>)
-                            }
-                            else if(entity.type === Constants.MODE.CIRCLE)
-                            {
-                                return (
-                                    <Circle
-                                        key={i}
-                                        x={entity.x}
-                                        y={entity.y}
-                                        radius={entity.radius}
-                                        stroke={entity.color}
-                                        strokeWidth={entity.thickness}
-                                    />
-                                )
-                            }
-                            else if(entity.type === Constants.MODE.RECTANGLE)
-                            {
-                                return (
-                                    <Rect
-                                    key={i}
-                                    x={entity.x}
-                                    y={entity.y}
-                                    width={entity.width}
-                                    height={entity.height}
-                                    stroke={entity.color}
-                                    strokeWidth={entity.thickness}
-                                    />
-                                )
-                            }
-                            else if(entity.type === Constants.MODE.MATH_FIELD)
-                            {
-                                var temp_image = new window.Image();
-                                temp_image.src = entity.src;
-                                return(
-                                    <Image
-                                    key={i}
-                                    x={entity.x}
-                                    y={entity.y}
-                                    image={temp_image}
-                                    />
-                                )
-                            }
-
+                            if(entity instanceof Drawable){ return (entity.draw())}
                         })}
                     </Layer>
                 </Stage>
