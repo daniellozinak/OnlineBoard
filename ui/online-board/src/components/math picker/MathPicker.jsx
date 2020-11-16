@@ -63,7 +63,7 @@ class MathPicker extends React.Component{
         this.setState({text:e.latex()});
         this.math_field.focus();
         //send html to Board
-        this.getHTMLElement();
+        this.updateMathField();
     }
 
     _onAddSign(sign){
@@ -82,9 +82,9 @@ class MathPicker extends React.Component{
         this.math_field.latex("");
     }
 
-    getHTMLElement()
+    updateMathField()
     {
-        this.props.data.send_html_function(Constants.LATEX_TO_IMAGE + this.math_field.latex());
+        this.props.data.change_field_function(this.math_field.latex());
     }
 
     render(){

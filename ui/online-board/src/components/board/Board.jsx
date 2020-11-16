@@ -54,12 +54,16 @@ class Board extends React.Component{
     componentDidMount()
     {
         this.socket.on(Constants.INITIAL_CANVAS_DATA,(data) => {
-            this.entities = data.content;
+            for(var i in data.content)
+            {
+                this.entities.push(this.getType(data.content[i]));
+            }
             this.line_pointer = data.pointer;
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
-            this.entities.push(data);
+            let new_data = this.getType(data);
+            this.entities.push(new_data);
             this.line_pointer +=1;
         })
     }
@@ -86,23 +90,17 @@ class Board extends React.Component{
         }
         //clear new line position array
         this.new_line_position = [];
+
         if(this.state.mode === Constants.MODE.MATH_FIELD)
         {
-            if(this.state.math_field === Constants.LATEX_TO_IMAGE || this.state.math_field ===null) {return;}
-
+            if(this.state.math_field === "" || this.state.math_field ===null) {this.new_entity = null;return;}
 
             this.new_line_position[0] = this.initial_click_position.x;
             this.new_line_position[1] = this.initial_click_position.y;
 
-            this.new_entity = new MField(this.line_pointer,this.new_line_position,this.state.math_field);
+            this.new_entity = new MField('Field',this.line_pointer,this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
 
-            // this.new_entity={
-            //     points: this.new_line_position,
-            //     src: this.state.math_field,
-            //     type: Constants.MODE.MATH_FIELD
-            // }
             this.entities[this.line_pointer] = this.new_entity;
-            
         }
     }
     
@@ -111,11 +109,11 @@ class Board extends React.Component{
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.setState({is_drawing: false});
-        
-            this.line_pointer +=1;
-
-            //emit new line
-            this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
+            if(this.new_entity !== null)
+            {
+                this.line_pointer +=1;
+                this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
+            }
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
@@ -145,7 +143,7 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_entity = new MLine(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.LINE:
@@ -156,7 +154,7 @@ class Board extends React.Component{
                     this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
 
                     //create new line
-                    this.new_entity = new MLine(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.CIRCLE:
@@ -165,13 +163,13 @@ class Board extends React.Component{
                     this.new_line_position[1] = this.getRelativePointerPosition(stage).y;
 
 
-                    this.new_entity = new MCircle(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,radius);
+                    this.new_entity = new MCircle('Circle',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
                 case Constants.MODE.RECTANGLE:
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
 
-                    this.new_entity = new MRect(this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,-1*dx,-1*dy);
+                    this.new_entity = new MRect('Rect',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,-1*dx,-1*dy);
 
                     if(this.state.mode === Constants.MODE.SELECT)
                         //colision check(this.new_entity,otherSapes)
@@ -249,6 +247,24 @@ class Board extends React.Component{
     }
 
 
+    getType(data)
+    {
+        if(data === null) {return null;}
+        switch(data.type)
+        {
+            case "Line":
+                return new MLine("Line",data.key,data.points,data.color,data.thickness);
+            case "Circle":
+                return new MCircle("Circle",data.key,data.points,data.color,data.thickness,data.radius);
+            case "Rect":
+                return new MRect("Rect",data.key,data.points,data.color,data.thickness,data.width,data.height);
+            case "Field":
+                return new MField("Field",data.key,data.points,data.src);
+            default:
+                return null;
+        }
+    }
+
     change_color(in_color)
     {
         this.setState({color: in_color});
@@ -295,7 +311,7 @@ class Board extends React.Component{
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
                     </div>
                     <div className="math-picker">
-                        <MathPicker data={{send_html_function: this.getLatexMath.bind(this)}}></MathPicker>
+                        <MathPicker data={{change_field_function: this.getLatexMath.bind(this)}}></MathPicker>
                     </div>
                 </div>
             </div>
