@@ -22,4 +22,18 @@ export class MLine extends Drawable{
                 lineJoin={'round'}>
             </Line>)
     }
+
+    get_offset()
+    {
+        return {width: 0, height: 0}
+    }
+
+    to_rect()
+    {
+        return {
+            points: this.points,
+            width: 0,
+            height: 0,
+        }
+    }
 };

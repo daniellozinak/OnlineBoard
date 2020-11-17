@@ -16,14 +16,12 @@ import SizePicker from '../size picker/SizePicker';
 import ModePicker from '../mode picker/ModePicker';
 import MathPicker from '../math picker/MathPicker';
 
-
-//TODO: add equations
 class Board extends React.Component{
 
     entities = [];
     new_entity = null;
     new_line_position = [];
-    line_pointer = 0;
+    entity_pointer = 0;
 
     initial_click_position = null;
 
@@ -54,17 +52,18 @@ class Board extends React.Component{
     componentDidMount()
     {
         this.socket.on(Constants.INITIAL_CANVAS_DATA,(data) => {
+            if(this.entities.length > 0) {return;}
             for(var i in data.content)
             {
                 this.entities.push(this.getType(data.content[i]));
             }
-            this.line_pointer = data.pointer;
+            this.entity_pointer = data.pointer;
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
             let new_data = this.getType(data);
             this.entities.push(new_data);
-            this.line_pointer +=1;
+            this.entity_pointer +=1;
         })
     }
 
@@ -98,20 +97,38 @@ class Board extends React.Component{
             this.new_line_position[0] = this.initial_click_position.x;
             this.new_line_position[1] = this.initial_click_position.y;
 
-            this.new_entity = new MField('Field',this.line_pointer,this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
+            this.new_entity = new MField('Field',this.entity_pointer,this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
 
-            this.entities[this.line_pointer] = this.new_entity;
+            this.entities[this.entity_pointer] = this.new_entity;
+            this.entity_pointer ++;
         }
     }
     
     _onMouseUp = e =>{
         console.log(this.entities);
+        if(this.entities[this.entity_pointer] === undefined) {return;}
+
+        if(this.entities[this.entity_pointer].key === -1)
+        {
+            let cors = MyMath.get_selector(this.entities);
+            if(cors !== null)
+            {
+                this.entities[this.entity_pointer].points[0] = (this.entities[this.entity_pointer].width > 0)? cors.min_x : cors.max_x;
+                this.entities[this.entity_pointer].points[1] =  (this.entities[this.entity_pointer].height > 0)? cors.min_y : cors.max_y;
+                this.entities[this.entity_pointer].width = (this.entities[this.entity_pointer].width > 0)? cors.max_x - cors.min_x: cors.min_x - cors.max_x;
+                this.entities[this.entity_pointer].height = (this.entities[this.entity_pointer].height > 0)? cors.max_y - cors.min_y: cors.min_y - cors.max_y;
+            }
+            else{
+                this.entities.splice(this.entity_pointer,1);
+            }
+        }
+
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.setState({is_drawing: false});
-            if(this.new_entity !== null)
+            if(this.new_entity !== null && this.new_entity.key >=0)
             {
-                this.line_pointer +=1;
+                this.entity_pointer +=1;
                 this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
             }
         }
@@ -133,6 +150,9 @@ class Board extends React.Component{
 
             let dx = this.initial_click_position.x - this.getRelativePointerPosition(stage).x;
             let dy = this.initial_click_position.y - this.getRelativePointerPosition(stage).y;
+
+            let width = -1*dx;
+            let height = -1*dy;
             switch(this.state.mode)
             {
                 case Constants.MODE.FREE_DRAW:
@@ -143,7 +163,7 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_entity = new MLine('Line',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.LINE:
@@ -154,7 +174,7 @@ class Board extends React.Component{
                     this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
 
                     //create new line
-                    this.new_entity = new MLine('Line',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.CIRCLE:
@@ -162,24 +182,37 @@ class Board extends React.Component{
                     this.new_line_position[0] = this.getRelativePointerPosition(stage).x;
                     this.new_line_position[1] = this.getRelativePointerPosition(stage).y;
 
-
-                    this.new_entity = new MCircle('Circle',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,radius);
+                    this.new_entity = new MCircle('Circle',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
                 case Constants.MODE.RECTANGLE:
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
 
-                    this.new_entity = new MRect('Rect',this.line_pointer,this.new_line_position,this.state.color,this.state.thickness,-1*dx,-1*dy);
+                    this.new_entity = new MRect('Rect',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness,width,height);
+                    break;
+                case Constants.MODE.SELECT:
+                    let new_points = [this.initial_click_position.x,this.initial_click_position.y];
 
-                    if(this.state.mode === Constants.MODE.SELECT)
-                        //colision check(this.new_entity,otherSapes)
-                        this.new_entity = null;
-                    break; 
+                    let selector = new MRect('Rect',-1,new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
+                    selector.fill = true;
+                    selector.opacity = 0.3;
+
+                    //calculate collision for every entity on the board
+                    for(var i in this.entities)
+                    {
+                        this.entities[i].selected = MyMath.collision_check(this.entities[i],selector);
+                    }
+
+                    //if mode doesnt create new entity, set it to null
+                    this.new_entity = selector;
+                    break;
                 default:
+                     //if mode doesnt create new entity, set it to null
+                    this.new_entity = null;
                     break;
             }
             if(this.new_entity!== null)
-                this.entities[this.line_pointer] = this.new_entity;
+                this.entities[this.entity_pointer] = this.new_entity;
         
             stage.batchDraw();
 

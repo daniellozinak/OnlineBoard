@@ -11,6 +11,9 @@ export class MRect extends Drawable
         this.thickness = thickness;
         this.width = width;
         this.height = height;
+        this.fill = false;
+        this.fill_color = color;
+        this.opacity = 1;
     }
 
     draw()
@@ -24,7 +27,26 @@ export class MRect extends Drawable
             height={this.height}
             stroke={this.color}
             strokeWidth={this.thickness}
+            fillEnabled={this.fill}
+            fill={this.fill_color}
+            opacity={this.opacity}
             />
         )
+    }
+
+    get_offset()
+    {
+        return {width: this.width, height:this.height}
+    }
+
+    to_rect()
+    {
+        let x = (this.width > 0)? this.points[0] : this.points[0] + this.width;
+        let y = (this.height > 0)? this.points[1] : this.points[1] + this.height;
+        return {
+            points: [x,y],
+            width: Math.abs(this.width),
+            height: Math.abs(this.height),
+        }
     }
 }

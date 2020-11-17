@@ -5,7 +5,10 @@ export class Drawable{
         this.type = type;
         this.key = key;
         this.points = points;
+        this.selected = false;
     }
 
     draw(){}
+    get_offset(){}
+    to_rect(){}
 };

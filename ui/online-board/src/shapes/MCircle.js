@@ -25,4 +25,18 @@ export class MCircle extends Drawable
             />
         )
     }
+    
+    get_offset()
+    {
+        return {width: this.radius, height:this.radius}
+    }
+
+    to_rect()
+    {
+        return {
+            points: [this.points[0]-this.radius,this.points[1]-this.radius],
+            width: this.radius*2,
+            height: this.radius*2,
+        }
+    }
 }

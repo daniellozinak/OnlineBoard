@@ -1,7 +1,6 @@
 import React from 'react';
 import './style.css';
 import { addStyles, EditableMathField } from 'react-mathquill'
-import * as Constants from '../../util/constants.js';
 
 addStyles()
 
