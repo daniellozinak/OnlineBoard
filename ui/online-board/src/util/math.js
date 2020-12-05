@@ -44,9 +44,9 @@ export function collision_check( entity, selector)
             x: entity.points[i],
             y: entity.points[i+1]
         }
-        if(( my_selector.x < cors.x) && 
-            (my_selector.x + my_selector.width > cors.x) && 
-            (my_selector.y < cors.y) && 
+        if(( my_selector.x < cors.x) &&
+            (my_selector.x + my_selector.width > cors.x) &&
+            (my_selector.y < cors.y) &&
             (my_selector.y + my_selector.height > cors.y))
         {
             return true;
@@ -73,8 +73,8 @@ export function get_selector(entities)
 
             for(var j in to_rect.points)
             {
-                
-                if(j%2 == 0) {
+
+                if(j%2 === 0) {
                     let x = to_rect.points[j];
                     x_cors.push(x);
                     if(width > 0) { x_cors.push(x + width);}

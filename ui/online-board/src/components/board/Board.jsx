@@ -15,6 +15,8 @@ import ColorPicker from '../color picker/ColorPicker';
 import SizePicker from '../size picker/SizePicker';
 import ModePicker from '../mode picker/ModePicker';
 import MathPicker from '../math picker/MathPicker';
+import SelectPanel from '../select panel/SelectPanel';
+
 
 class Board extends React.Component{
 
@@ -27,7 +29,7 @@ class Board extends React.Component{
 
     socket = io.connect(Constants.LOCAL_SERVER);
     pan_position;
-    
+
     constructor(props)
     {
         super(props);
@@ -45,6 +47,7 @@ class Board extends React.Component{
             thickness: 10,
             mode: Constants.MODE.FREE_DRAW,
             math_field: null,
+            select_panel_data: {is_selected: this.isAnySelected(), x: 0, y:0}
         }
 
     }
@@ -72,6 +75,11 @@ class Board extends React.Component{
         var stage = e.currentTarget;
         this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
         this.setState({mouse_y: this.getRelativePointerPosition(stage).y});
+        this.setState({select_panel_data:
+          {is_selected: false,
+            x: 0,
+            y: 0}
+        });
 
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
@@ -103,11 +111,12 @@ class Board extends React.Component{
             this.entity_pointer ++;
         }
     }
-    
+
     _onMouseUp = e =>{
         console.log(this.entities);
         if(this.entities[this.entity_pointer] === undefined) {return;}
 
+        //selector
         if(this.entities[this.entity_pointer].key === -1)
         {
             let cors = MyMath.get_selector(this.entities);
@@ -117,10 +126,22 @@ class Board extends React.Component{
                 this.entities[this.entity_pointer].points[1] =  (this.entities[this.entity_pointer].height > 0)? cors.min_y : cors.max_y;
                 this.entities[this.entity_pointer].width = (this.entities[this.entity_pointer].width > 0)? cors.max_x - cors.min_x: cors.min_x - cors.max_x;
                 this.entities[this.entity_pointer].height = (this.entities[this.entity_pointer].height > 0)? cors.max_y - cors.min_y: cors.min_y - cors.max_y;
+
+                // TODO: Better placing
+                this.setState({select_panel_data:
+                  {is_selected: this.isAnySelected(),
+                    x: this.entities[this.entity_pointer].points[0],
+                    y: this.entities[this.entity_pointer].points[1]}
+                });
             }
             else{
+                //delete selector from entities
                 this.entities.splice(this.entity_pointer,1);
             }
+
+            //set state for select Panel
+
+            console.log(this.state.select_panel_data);
         }
 
         if(e.evt.button === Constants.LEFT_BUTTON)
@@ -191,6 +212,8 @@ class Board extends React.Component{
                     this.new_entity = new MRect('Rect',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness,width,height);
                     break;
                 case Constants.MODE.SELECT:
+
+
                     let new_points = [this.initial_click_position.x,this.initial_click_position.y];
 
                     let selector = new MRect('Rect',-1,new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
@@ -213,7 +236,7 @@ class Board extends React.Component{
             }
             if(this.new_entity!== null)
                 this.entities[this.entity_pointer] = this.new_entity;
-        
+
             stage.batchDraw();
 
             //set the last mouse coordinates
@@ -226,7 +249,7 @@ class Board extends React.Component{
             var pointer = stage.getPointerPosition();
 
             //offset from current position to initial panning position
-            var new_position = { 
+            var new_position = {
                 x: (pointer.x - this.pan_position.x),
                 y: (pointer.y - this.pan_position.y)
             }
@@ -235,7 +258,7 @@ class Board extends React.Component{
             new_position = MyMath.vector_normalize(new_position.x,new_position.y);
             new_position.x *= this.state.pan_by;
             new_position.y *= this.state.pan_by;
-            
+
             //calculate new stage position
             var stage_position = {
                 x: stage.position().x + new_position.x,
@@ -243,7 +266,7 @@ class Board extends React.Component{
             }
 
             stage.batchDraw();
-            stage.position(stage_position);            
+            stage.position(stage_position);
         }
 
         //set the last mouse coordinates
@@ -279,6 +302,18 @@ class Board extends React.Component{
         this.setState({current_scale: new_scale});
     }
 
+
+    // TODO: delete
+    delete_selected()
+    {
+      console.log("DELETE");
+    }
+
+    // TODO: copy
+    copy_selected()
+    {
+      console.log("SELECT");
+    }
 
     getType(data)
     {
@@ -316,7 +351,7 @@ class Board extends React.Component{
 
     getLatexMath(html)
     {
-        this.setState({math_field: html}); 
+        this.setState({math_field: html});
     }
 
     //world coordinates
@@ -326,6 +361,19 @@ class Board extends React.Component{
         var position = node.getStage().getPointerPosition();
 
         return transform.point(position);
+    }
+
+    isAnySelected()
+    {
+        for(var i in this.entities)
+        {
+          let temp_entitiy = this.entities[i];
+          if(temp_entitiy.key === -1)
+          {
+            return true;
+          }
+        }
+        return false;
     }
 
     render(){
@@ -340,15 +388,21 @@ class Board extends React.Component{
                     <div className="size-picker">
                         <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
                     </div>
-                    <div className="mode-picker"> 
+                    <div className="mode-picker">
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
                     </div>
                     <div className="math-picker">
                         <MathPicker data={{change_field_function: this.getLatexMath.bind(this)}}></MathPicker>
                     </div>
                 </div>
+                <SelectPanel
+                data={this.state.select_panel_data}
+                callback_delete={{delete_callback: this.delete_selected.bind(this)}}
+                callback_copy={{copy_callback: this.copy_selected.bind(this)}}
+                />
+
             </div>
-                <Stage className="board-stage" 
+                <Stage className="board-stage"
                 width={window.innerWidth} height={window.innerHeight}
                 onMouseDown ={this._onMouseDown.bind(this)}
                 onMouseUp   ={this._onMouseUp.bind(this)}
@@ -356,7 +410,7 @@ class Board extends React.Component{
                 onWheel     ={this._onWheel.bind(this)}>
                     <Layer>
                         {items.map((entity) =>
-                        { 
+                        {
                             if(entity instanceof Drawable){ return (entity.draw())}
                         })}
                     </Layer>
