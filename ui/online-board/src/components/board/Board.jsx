@@ -128,20 +128,12 @@ class Board extends React.Component{
                 this.entities[this.entity_pointer].height = (this.entities[this.entity_pointer].height > 0)? cors.max_y - cors.min_y: cors.min_y - cors.max_y;
 
                 // TODO: Better placing
-                this.setState({select_panel_data:
-                  {is_selected: this.isAnySelected(),
-                    x: this.entities[this.entity_pointer].points[0],
-                    y: this.entities[this.entity_pointer].points[1]}
-                });
+                this.update_select_panel(e.currentTarget);
             }
             else{
                 //delete selector from entities
                 this.entities.splice(this.entity_pointer,1);
             }
-
-            //set state for select Panel
-
-            console.log(this.state.select_panel_data);
         }
 
         if(e.evt.button === Constants.LEFT_BUTTON)
@@ -300,8 +292,42 @@ class Board extends React.Component{
         stage.batchDraw();
 
         this.setState({current_scale: new_scale});
+
+        this.update_select_panel(stage);
     }
 
+
+    update_select_panel(stage)
+    {
+      let shown = this.isAnySelected();
+      if(!shown) {return;}
+
+      let width = this.entities[this.entity_pointer].width;
+      let height = this.entities[this.entity_pointer].height;
+
+
+      let x = (width > 0) ? this.entities[this.entity_pointer].points[0] : this.entities[this.entity_pointer].points[0] + width;
+      let y = (height > 0 ) ? this.entities[this.entity_pointer].points[1] : this.entities[this.entity_pointer].points[1] + height;
+
+      let scale =  stage.scaleX();
+
+
+      let offset_x = 40 ;
+      let offset_y = 120 ;
+
+      console.log(scale);
+
+
+      let x_diff =  stage.absolutePosition().x;
+      let y_diff =  stage.absolutePosition().y;
+
+
+      this.setState({select_panel_data:
+        {is_selected: shown,
+          x: (x * scale + x_diff - offset_x),
+          y: (y * scale + y_diff) - offset_y }
+      });
+    }
 
     // TODO: delete
     delete_selected()
@@ -361,6 +387,14 @@ class Board extends React.Component{
         var position = node.getStage().getPointerPosition();
 
         return transform.point(position);
+    }
+
+    getRelativePointPosition(node,point)
+    {
+      var transform = node.getAbsoluteTransform().copy();
+      transform.invert();
+
+      return transform.point(point);
     }
 
     isAnySelected()

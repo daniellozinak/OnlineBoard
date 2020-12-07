@@ -21,14 +21,15 @@ class SelectPanel extends React.Component{
     if(prev_props.data !== this.props.data)
     {
       this.setState({show: this.props.data.is_selected});
-      this.setState({x: this.props.data.x - 100});
-      this.setState({y: this.props.data.y - 100});
+      this.setState({x: this.props.data.x});
+      this.setState({y: this.props.data.y});
 
       if(this.panelRef.current !== null)
       {
         const node = this.panelRef.current;
-        console.log(node);
       }
+
+      //console.log(this.state.x + " " + this.state.y);
     }
   }
 
@@ -43,9 +44,17 @@ class SelectPanel extends React.Component{
   render(){
     return(
       <>{this.state.show &&
-      <div className="select-panel" style={{position:'absolute',left: this.state.x + "px",top: this.state.y + "px"}} ref={this.panelRef}>
-        <button  className="select-panel-delete" onClick={this._onClickDelete}>DELETE</button>
-        <button className="select-panel-copy" onClick={this._onClickCopy}>COPY</button>
+      <div className="select-panel" style=
+      {{position:'absolute',
+       display: 'flex',
+       gap: '5px',
+       width: '20px',
+       height: '20px',
+       left: this.state.x + "px",
+       top: this.state.y + "px"}}
+       ref={this.panelRef}>
+        <button  className="select-panel-delete" onClick={this._onClickDelete}>D</button>
+        <button className="select-panel-copy" onClick={this._onClickCopy}>C</button>
       </div>}
       </>
     )
