@@ -1,5 +1,5 @@
 var app =   require('express')();
-var http =  require('http').createServer(app);   
+var http =  require('http').createServer(app);
 var io =    require('socket.io')(http);
 
 current_content = [];
@@ -14,6 +14,12 @@ io.on('connection', (socket)=>{
         current_content.push(data);
         current_pointer +=1;
         socket.broadcast.emit('canvas-data',data);
+    })
+
+    socket.on('canvas-data-delete',(data)=>{
+      current_content.splice(data,1);
+      current_pointer--;
+      socket.broadcast.emit('canvas-data-delete',data);
     })
 })
 

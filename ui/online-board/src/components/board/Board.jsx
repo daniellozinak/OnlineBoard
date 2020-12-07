@@ -68,6 +68,10 @@ class Board extends React.Component{
             this.entities.push(new_data);
             this.entity_pointer +=1;
         })
+
+        this.socket.on(Constants.CANVAS_DATA_DELETE,(data) =>{
+          this.delete_entity(data);
+        })
     }
 
 
@@ -132,7 +136,7 @@ class Board extends React.Component{
             }
             else{
                 //delete selector from entities
-                this.entities.splice(this.entity_pointer,1);
+                this.remove_selector();
             }
         }
 
@@ -312,11 +316,8 @@ class Board extends React.Component{
       let scale =  stage.scaleX();
 
 
-      let offset_x = 40 ;
-      let offset_y = 120 ;
-
-      console.log(scale);
-
+      let offset_x = 40;
+      let offset_y = 120;
 
       let x_diff =  stage.absolutePosition().x;
       let y_diff =  stage.absolutePosition().y;
@@ -329,16 +330,47 @@ class Board extends React.Component{
       });
     }
 
+
+
+    remove_selector()
+    {
+      if(this.entities[this.entity_pointer].key !== -1) { return;}
+      this.entities.splice(this.entity_pointer,1);
+      this.setState({select_panel_data:
+        {is_selected: false,
+          x: 0,
+          y: 0 }
+      });
+    }
+
+    delete_entity(index)
+    {
+      this.entities.splice(index,1);
+      this.entity_pointer --;
+    }
+
     // TODO: delete
     delete_selected()
     {
-      console.log("DELETE");
+      if(!this.isAnySelected()) {return;}
+      for(var i in this.entities)
+      {
+        var entity = this.entities[i];
+        if(entity.selected)
+        {
+          this.delete_entity(i);
+
+          this.socket.emit(Constants.CANVAS_DATA_DELETE,i);
+        }
+      }
+      this.remove_selector();
+
     }
 
     // TODO: copy
     copy_selected()
     {
-      console.log("SELECT");
+      if(!this.isAnySelected) {return;}
     }
 
     getType(data)
