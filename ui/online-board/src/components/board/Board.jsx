@@ -24,6 +24,7 @@ class Board extends React.Component{
     new_entity = null;
     new_line_position = [];
     entity_pointer = 0;
+    copied_entities = [];
 
     initial_click_position = null;
 
@@ -352,25 +353,39 @@ class Board extends React.Component{
     // TODO: delete
     delete_selected()
     {
+      //check if anything is selected
       if(!this.isAnySelected()) {return;}
       for(var i in this.entities)
       {
         var entity = this.entities[i];
-        if(entity.selected)
+        if(entity.selected) //if entity is selected
         {
-          this.delete_entity(i);
+          this.delete_entity(i); //delete locally
 
-          this.socket.emit(Constants.CANVAS_DATA_DELETE,i);
+          this.socket.emit(Constants.CANVAS_DATA_DELETE,i); //emit
         }
       }
-      this.remove_selector();
+      this.remove_selector(); // remove selector
 
     }
+
 
     // TODO: copy
     copy_selected()
     {
+      //check if anything is selected
       if(!this.isAnySelected) {return;}
+      //empty array
+      this.copied_entities = [];
+      for(var i in this.entities)
+      {
+        var entity = this.entities[i];
+        if(entity.selected) // if is selected
+        {
+          this.copied_entities.push(entity); //add to array
+        }
+      }
+      console.log(this.copied_entities);
     }
 
     getType(data)
