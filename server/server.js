@@ -21,6 +21,10 @@ io.on('connection', (socket)=>{
       current_pointer--;
       socket.broadcast.emit('canvas-data-delete',data);
     })
+
+    socket.on('canvas-data-filter',(data)=>{
+        socket.broadcast.emit('canvas-data-filter',data);
+      })
 })
 
 var server_port = process.env.YOUR_PORT || process.env.PORT || 5000;

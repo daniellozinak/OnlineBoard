@@ -3,6 +3,7 @@ import {Stage,Layer} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
 import * as MyMath from '../../util/math.js';
+import * as Util from '../../util/util.js';
 import './style.css';
 
 import {Drawable} from '../../shapes/Drawable.js'
@@ -73,6 +74,10 @@ class Board extends React.Component{
         this.socket.on(Constants.CANVAS_DATA_DELETE,(data) =>{
           this.delete_entity(data);
         })
+
+        this.socket.on(Constants.CANVAS_DATA_FILTER,(data) =>{
+            this.filter();
+          })
     }
 
 
@@ -110,7 +115,7 @@ class Board extends React.Component{
             this.new_line_position[0] = this.initial_click_position.x;
             this.new_line_position[1] = this.initial_click_position.y;
 
-            this.new_entity = new MField('Field',this.entity_pointer,this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
+            this.new_entity = new MField('Field',this.nextKey(),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
 
             this.entities[this.entity_pointer] = this.new_entity;
             this.entity_pointer ++;
@@ -119,6 +124,7 @@ class Board extends React.Component{
 
     _onMouseUp = e =>{
         console.log(this.entities);
+        console.log(this.entity_pointer);
         if(this.entities[this.entity_pointer] === undefined) {return;}
 
         //selector
@@ -181,7 +187,7 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_entity = new MLine('Line',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.LINE:
@@ -192,7 +198,7 @@ class Board extends React.Component{
                     this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
 
                     //create new line
-                    this.new_entity = new MLine('Line',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.CIRCLE:
@@ -200,13 +206,13 @@ class Board extends React.Component{
                     this.new_line_position[0] = this.getRelativePointerPosition(stage).x;
                     this.new_line_position[1] = this.getRelativePointerPosition(stage).y;
 
-                    this.new_entity = new MCircle('Circle',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness,radius);
+                    this.new_entity = new MCircle('Circle',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
                 case Constants.MODE.RECTANGLE:
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
 
-                    this.new_entity = new MRect('Rect',this.entity_pointer,this.new_line_position,this.state.color,this.state.thickness,width,height);
+                    this.new_entity = new MRect('Rect',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness,width,height);
                     break;
                 case Constants.MODE.SELECT:
 
@@ -346,7 +352,7 @@ class Board extends React.Component{
 
     delete_entity(index)
     {
-      this.entities.splice(index,1);
+      delete this.entities[index];
       this.entity_pointer --;
     }
 
@@ -355,9 +361,11 @@ class Board extends React.Component{
     {
       //check if anything is selected
       if(!this.isAnySelected()) {return;}
+
       for(var i in this.entities)
       {
         var entity = this.entities[i];
+        console.log(this.entities);
         if(entity.selected) //if entity is selected
         {
           this.delete_entity(i); //delete locally
@@ -365,11 +373,16 @@ class Board extends React.Component{
           this.socket.emit(Constants.CANVAS_DATA_DELETE,i); //emit
         }
       }
-      this.remove_selector(); // remove selector
+      this.filter();
+      this.socket.emit(Constants.CANVAS_DATA_FILTER,null); //emit
 
+      this.remove_selector(); // remove selector
     }
 
-
+    filter()
+    {
+        this.entities = Util.filter_empty_array(this.entities);
+    }
     // TODO: copy
     copy_selected()
     {
@@ -455,6 +468,19 @@ class Board extends React.Component{
           }
         }
         return false;
+    }
+
+    nextKey()
+    {
+      let keys = [];
+      this.entities.forEach(function(value,index,array)
+      {
+        keys.push(value.key);
+      });
+
+      if(keys.length === 0){return 0;}
+
+      return Math.max(...keys) + 1;
     }
 
     render(){
