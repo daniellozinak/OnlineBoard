@@ -49,7 +49,7 @@ class Board extends React.Component{
             thickness: 10,
             mode: Constants.MODE.FREE_DRAW,
             math_field: null,
-            select_panel_data: {is_selected: this.isAnySelected(), x: 0, y:0}
+            select_panel_data: {is_selected: Util.is_anything_selected(this.entities), x: 0, y:0}
         }
 
     }
@@ -60,13 +60,13 @@ class Board extends React.Component{
             if(this.entities.length > 0) {return;}
             for(var i in data.content)
             {
-                this.entities.push(this.getType(data.content[i]));
+                this.entities.push(Util.get_object(data.content[i]));
             }
             this.entity_pointer = data.pointer;
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
-            let new_data = this.getType(data);
+            let new_data = Util.get_object(data);
             this.entities.push(new_data);
             this.entity_pointer +=1;
         })
@@ -115,7 +115,7 @@ class Board extends React.Component{
             this.new_line_position[0] = this.initial_click_position.x;
             this.new_line_position[1] = this.initial_click_position.y;
 
-            this.new_entity = new MField('Field',this.nextKey(),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
+            this.new_entity = new MField('Field',Util.next_key(this.entities),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
 
             this.entities[this.entity_pointer] = this.new_entity;
             this.entity_pointer ++;
@@ -187,7 +187,7 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_entity = new MLine('Line',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.LINE:
@@ -198,7 +198,7 @@ class Board extends React.Component{
                     this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
 
                     //create new line
-                    this.new_entity = new MLine('Line',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
 
                     break;
                 case Constants.MODE.CIRCLE:
@@ -206,13 +206,13 @@ class Board extends React.Component{
                     this.new_line_position[0] = this.getRelativePointerPosition(stage).x;
                     this.new_line_position[1] = this.getRelativePointerPosition(stage).y;
 
-                    this.new_entity = new MCircle('Circle',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness,radius);
+                    this.new_entity = new MCircle('Circle',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
                 case Constants.MODE.RECTANGLE:
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
 
-                    this.new_entity = new MRect('Rect',this.nextKey(),this.new_line_position,this.state.color,this.state.thickness,width,height);
+                    this.new_entity = new MRect('Rect',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,width,height);
                     break;
                 case Constants.MODE.SELECT:
 
@@ -310,7 +310,7 @@ class Board extends React.Component{
 
     update_select_panel(stage)
     {
-      let shown = this.isAnySelected();
+      let shown = Util.is_anything_selected(this.entities);
       if(!shown) {return;}
 
       let width = this.entities[this.entity_pointer].width;
@@ -337,8 +337,6 @@ class Board extends React.Component{
       });
     }
 
-
-
     remove_selector()
     {
       if(this.entities[this.entity_pointer].key !== -1) { return;}
@@ -360,7 +358,7 @@ class Board extends React.Component{
     delete_selected()
     {
       //check if anything is selected
-      if(!this.isAnySelected()) {return;}
+      if(!Util.is_anything_selected(this.entities)) {return;}
 
       for(var i in this.entities)
       {
@@ -387,7 +385,7 @@ class Board extends React.Component{
     copy_selected()
     {
       //check if anything is selected
-      if(!this.isAnySelected) {return;}
+      if(!Util.is_anything_selected(this.entities)) {return;}
       //empty array
       this.copied_entities = [];
       for(var i in this.entities)
@@ -399,24 +397,6 @@ class Board extends React.Component{
         }
       }
       console.log(this.copied_entities);
-    }
-
-    getType(data)
-    {
-        if(data === null) {return null;}
-        switch(data.type)
-        {
-            case "Line":
-                return new MLine("Line",data.key,data.points,data.color,data.thickness);
-            case "Circle":
-                return new MCircle("Circle",data.key,data.points,data.color,data.thickness,data.radius);
-            case "Rect":
-                return new MRect("Rect",data.key,data.points,data.color,data.thickness,data.width,data.height);
-            case "Field":
-                return new MField("Field",data.key,data.points,data.src);
-            default:
-                return null;
-        }
     }
 
     change_color(in_color)
@@ -455,32 +435,6 @@ class Board extends React.Component{
       transform.invert();
 
       return transform.point(point);
-    }
-
-    isAnySelected()
-    {
-        for(var i in this.entities)
-        {
-          let temp_entitiy = this.entities[i];
-          if(temp_entitiy.key === -1)
-          {
-            return true;
-          }
-        }
-        return false;
-    }
-
-    nextKey()
-    {
-      let keys = [];
-      this.entities.forEach(function(value,index,array)
-      {
-        keys.push(value.key);
-      });
-
-      if(keys.length === 0){return 0;}
-
-      return Math.max(...keys) + 1;
     }
 
     render(){

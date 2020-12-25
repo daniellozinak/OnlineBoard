@@ -9,6 +9,6 @@ export class Drawable{
     }
 
     draw(){}
-    get_offset(){}
+    self(){}
     to_rect(){}
 };
