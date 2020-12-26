@@ -98,12 +98,16 @@ class Board extends React.Component{
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
-            this.setState({is_panning: true});
-
+            console.log(this.copied_entities.length);
+            if(typeof this.copied_entities === 'undefined' || this.copied_entities.length <= 0) {return;}
+            let offset = {x: this.state.mouse_x - this.copied_entities[0].points[0],
+                          y: this.state.mouse_y - this.copied_entities[0].points[1]};
+            //this.setState({is_panning: true});
+            this.paste_selected(offset);
             //disable right click context-menu
             e.evt.preventDefault();
             //initial panning position
-            this.pan_position = stage.getPointerPosition();
+            //this.pan_position = stage.getPointerPosition();
         }
         //clear new line position array
         this.new_line_position = [];
@@ -124,7 +128,6 @@ class Board extends React.Component{
 
     _onMouseUp = e =>{
         console.log(this.entities);
-        console.log(this.entity_pointer);
         if(this.entities[this.entity_pointer] === undefined) {return;}
 
         //selector
@@ -215,8 +218,6 @@ class Board extends React.Component{
                     this.new_entity = new MRect('Rect',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,width,height);
                     break;
                 case Constants.MODE.SELECT:
-
-
                     let new_points = [this.initial_click_position.x,this.initial_click_position.y];
 
                     let selector = new MRect('Rect',-1,new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
@@ -339,6 +340,7 @@ class Board extends React.Component{
 
     remove_selector()
     {
+      if(this.entities[this.entity_pointer] === undefined) {return;}
       if(this.entities[this.entity_pointer].key !== -1) { return;}
       this.entities.splice(this.entity_pointer,1);
       this.setState({select_panel_data:
@@ -354,7 +356,6 @@ class Board extends React.Component{
       this.entity_pointer --;
     }
 
-    // TODO: delete
     delete_selected()
     {
       //check if anything is selected
@@ -370,6 +371,7 @@ class Board extends React.Component{
 
           this.socket.emit(Constants.CANVAS_DATA_DELETE,i); //emit
         }
+
       }
       this.filter();
       this.socket.emit(Constants.CANVAS_DATA_FILTER,null); //emit
@@ -381,7 +383,8 @@ class Board extends React.Component{
     {
         this.entities = Util.filter_empty_array(this.entities);
     }
-    // TODO: copy
+
+    
     copy_selected()
     {
       //check if anything is selected
@@ -390,13 +393,44 @@ class Board extends React.Component{
       this.copied_entities = [];
       for(var i in this.entities)
       {
-        var entity = this.entities[i];
-        if(entity.selected) // if is selected
+        if(this.entities[i].selected) // if is selected
         {
-          this.copied_entities.push(entity); //add to array
+          //using JSON to clone object
+          let entity = Util.get_object(JSON.parse(JSON.stringify(this.entities[i])));
+          this.copied_entities.push(entity);
         }
       }
       console.log(this.copied_entities);
+      console.log(this.entities); 
+      this.remove_selector();
+    }
+
+    paste_selected(offset)
+    {
+        //remove selector
+        this.remove_selector();
+        for(var i in this.copied_entities)
+        {
+            let entity = this.copied_entities[i];
+            entity.key = Util.next_key(this.entities) + parseInt(i);
+
+            //temporary
+            for(var j in entity.points)
+            {
+                entity.points[j] += (j%2 == 0)? offset.x : offset.y;
+            }
+
+            //add entity
+            this.entities[this.entity_pointer] = entity;
+            this.entity_pointer ++ ;
+
+            //emit entity
+            this.socket.emit(Constants.CANVAS_DATA  ,entity);
+        }
+        //clear copied entities
+        this.copied_entities = [];
+
+        console.log(this.entities);
     }
 
     change_color(in_color)
