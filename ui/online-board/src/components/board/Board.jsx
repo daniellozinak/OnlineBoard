@@ -26,8 +26,11 @@ class Board extends React.Component{
     new_line_position = [];
     entity_pointer = 0;
     copied_entities = [];
+    mouse_down = false;
 
     initial_click_position = null;
+
+    pan_position = null;
 
     socket = io.connect(Constants.LOCAL_SERVER);
     pan_position;
@@ -49,9 +52,9 @@ class Board extends React.Component{
             thickness: 10,
             mode: Constants.MODE.FREE_DRAW,
             math_field: null,
-            select_panel_data: {is_selected: Util.is_anything_selected(this.entities), x: 0, y:0}
+            select_panel_data: {is_selected: Util.is_anything_selected(this.entities), x: 0, y:0},
         }
-
+        console.log("ptr: " + this.entity_pointer);
     }
 
     componentDidMount()
@@ -91,15 +94,19 @@ class Board extends React.Component{
             y: 0}
         });
 
+        this.pan_position = {x: this.state.mouse_x,y: this.state.mouse_y};
+
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.setState({is_drawing: true});
             this.initial_click_position = this.getRelativePointerPosition(stage);
+            this.mouse_down = true;
         }
+
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
-            console.log(this.copied_entities.length);
             if(typeof this.copied_entities === 'undefined' || this.copied_entities.length <= 0) {return;}
+
             let offset = {x: this.state.mouse_x - this.copied_entities[0].points[0],
                           y: this.state.mouse_y - this.copied_entities[0].points[1]};
             //this.setState({is_panning: true});
@@ -128,6 +135,7 @@ class Board extends React.Component{
 
     _onMouseUp = e =>{
         console.log(this.entities);
+        this.mouse_down = false;
         if(this.entities[this.entity_pointer] === undefined) {return;}
 
         //selector
@@ -161,7 +169,7 @@ class Board extends React.Component{
         }
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
-            this.setState({is_panning: false});
+            //this.setState({is_panning: false});
         }
     }
 
@@ -180,6 +188,7 @@ class Board extends React.Component{
 
             let width = -1*dx;
             let height = -1*dy;
+            this.new_entity = null;
             switch(this.state.mode)
             {
                 case Constants.MODE.FREE_DRAW:
@@ -233,9 +242,27 @@ class Board extends React.Component{
                     //if mode doesnt create new entity, set it to null
                     this.new_entity = selector;
                     break;
+                case Constants.MODE.PANNING:
+                    if(this.mouse_down)
+                    {
+                        var newPos = {
+                            x: (stage.getPointerPosition().x - this.pan_position.x * stage.scaleX()) ,
+                            y: (stage.getPointerPosition().y - this.pan_position.y * stage.scaleY()) ,
+                        };
+
+                        //var touch1 = e.evt.touches[0];
+                        //var touch2 = e.evt.touches[1];
+
+                        stage.position(newPos);
+                        console.log(newPos);
+                        //stage.batchDraw();
+                    }
+                    //console.log("Pann");
+                    
+                    break;
                 default:
                      //if mode doesnt create new entity, set it to null
-                    this.new_entity = null;
+
                     break;
             }
             if(this.new_entity!== null)
@@ -246,31 +273,6 @@ class Board extends React.Component{
             //set the last mouse coordinates
             this.setState({last_mouse_x: this.state.mouse_x});
             this.setState({last_mouse_y: this.state.mouse_y});
-        }
-
-        if(this.state.is_panning)
-        {
-            var pointer = stage.getPointerPosition();
-
-            //offset from current position to initial panning position
-            var new_position = {
-                x: (pointer.x - this.pan_position.x),
-                y: (pointer.y - this.pan_position.y)
-            }
-
-            //normalize vector and multiply by constant
-            new_position = MyMath.vector_normalize(new_position.x,new_position.y);
-            new_position.x *= this.state.pan_by;
-            new_position.y *= this.state.pan_by;
-
-            //calculate new stage position
-            var stage_position = {
-                x: stage.position().x + new_position.x,
-                y: stage.position().y + new_position.y,
-            }
-
-            stage.batchDraw();
-            stage.position(stage_position);
         }
 
         //set the last mouse coordinates
@@ -488,6 +490,9 @@ class Board extends React.Component{
                     </div>
                     <div className="math-picker">
                         <MathPicker data={{change_field_function: this.getLatexMath.bind(this)}}></MathPicker>
+                    </div>
+                    <div className="panning">
+                        <button onClick={()=> {this.setState({mode: Constants.MODE.PANNING})}}>Pan</button>
                     </div>
                 </div>
                 <SelectPanel
