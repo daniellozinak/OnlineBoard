@@ -1,6 +1,8 @@
 import React from 'react';
 import './style.css';
 import { addStyles, EditableMathField } from 'react-mathquill'
+import * as Util from '../../util/util.js';
+import * as Constants from '../../util/constants.js';
 
 addStyles()
 
@@ -58,7 +60,7 @@ class MathPicker extends React.Component{
             this.math_field.latex("");
             return;
         }
-
+        
         this.setState({text:e.latex()});
         this.math_field.focus();
         //send html to Board
@@ -83,7 +85,8 @@ class MathPicker extends React.Component{
 
     updateMathField()
     {
-        this.props.data.change_field_function(this.math_field.latex());
+        let output = Util.encode_url(this.math_field.latex()) + Constants.MATH_COLOR;
+        this.props.data.change_field_function(output);
     }
 
     render(){

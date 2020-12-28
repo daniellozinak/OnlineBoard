@@ -8,8 +8,6 @@ export function filter_empty_array(array)
   if(!Array.isArray(array)) {return null;}
 
   var filtered = array.filter(n => n);
-
-  console.log(filtered); 
   return filtered;
 }
 
@@ -30,19 +28,10 @@ export function is_anything_selected(array)
 export function next_key(array)
 {
   if(!Array.isArray(array)) {return null;}
-
-  let keys = [];
-  array.forEach(function(value,index,array)
-  {
-    keys.push(value.key);
-  });
-
-  if(keys.length === 0){return 0;}
-
-  return Math.max(...keys) + 1;
+  return array.length + 1;
 }
 
-export function get_object(data)
+export function retrieve_object(data)
 {
     if(data === null) {return null;}
     switch(data.type)
@@ -58,4 +47,14 @@ export function get_object(data)
         default:
             return null;
     }
+}
+
+export function clone_object(data)
+{
+  return JSON.parse(JSON.stringify(data));
+}
+
+export function encode_url(value)
+{
+  return encodeURIComponent(value).replace("(", "%28").replace(")", "%29");
 }

@@ -28,7 +28,7 @@ export class MField extends Drawable{
         />)
     }
 
-    get_offset()
+    get_offset() 
     {
         return {width: this.width, height:this.height}
     }

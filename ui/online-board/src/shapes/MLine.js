@@ -10,6 +10,12 @@ export class MLine extends Drawable{
         this.thickness = thickness;
     }
 
+    create(key,points,color,thickness)
+    {
+        
+        return new MLine("Line",key,points,color,thickness);
+    }
+
     draw()
     {
         return (

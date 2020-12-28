@@ -63,13 +63,13 @@ class Board extends React.Component{
             if(this.entities.length > 0) {return;}
             for(var i in data.content)
             {
-                this.entities.push(Util.get_object(data.content[i]));
+                this.entities.push(Util.retrieve_object(data.content[i]));
             }
             this.entity_pointer = data.pointer;
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
-            let new_data = Util.get_object(data);
+            let new_data = Util.retrieve_object(data);
             this.entities.push(new_data);
             this.entity_pointer +=1;
         })
@@ -113,30 +113,15 @@ class Board extends React.Component{
             this.paste_selected(offset);
             //disable right click context-menu
             e.evt.preventDefault();
-            //initial panning position
-            //this.pan_position = stage.getPointerPosition();
         }
         //clear new line position array
         this.new_line_position = [];
-
-        if(this.state.mode === Constants.MODE.MATH_FIELD)
-        {
-            if(this.state.math_field === "" || this.state.math_field ===null) {this.new_entity = null;return;}
-
-            this.new_line_position[0] = this.initial_click_position.x;
-            this.new_line_position[1] = this.initial_click_position.y;
-
-            this.new_entity = new MField('Field',Util.next_key(this.entities),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
-
-            this.entities[this.entity_pointer] = this.new_entity;
-            this.entity_pointer ++;
-        }
     }
 
     _onMouseUp = e =>{
         console.log(this.entities);
         this.mouse_down = false;
-        if(this.entities[this.entity_pointer] === undefined) {return;}
+        if(this.entities[this.entity_pointer] === undefined) { return;}
 
         //selector
         if(this.entities[this.entity_pointer].key === -1)
@@ -149,7 +134,6 @@ class Board extends React.Component{
                 this.entities[this.entity_pointer].width = (this.entities[this.entity_pointer].width > 0)? cors.max_x - cors.min_x: cors.min_x - cors.max_x;
                 this.entities[this.entity_pointer].height = (this.entities[this.entity_pointer].height > 0)? cors.max_y - cors.min_y: cors.min_y - cors.max_y;
 
-                // TODO: Better placing
                 this.update_select_panel(e.currentTarget);
             }
             else{
@@ -163,7 +147,7 @@ class Board extends React.Component{
             this.setState({is_drawing: false});
             if(this.new_entity !== null && this.new_entity.key >=0)
             {
-                this.entity_pointer +=1;
+                this.entity_pointer ++;
                 this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
             }
         }
@@ -175,8 +159,7 @@ class Board extends React.Component{
 
     _onMouseMove = e =>{
         var stage = e.currentTarget;
-
-        if(this.state.is_drawing)
+        if(this.state.is_drawing && this.mouse_down)
         {
 
             this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
@@ -189,6 +172,10 @@ class Board extends React.Component{
             let width = -1*dx;
             let height = -1*dy;
             this.new_entity = null;
+
+            //added to fix the key generation
+            this.entities[this.entity_pointer] = this.new_entity;
+
             switch(this.state.mode)
             {
                 case Constants.MODE.FREE_DRAW:
@@ -200,7 +187,6 @@ class Board extends React.Component{
 
                     //create new line
                     this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
-
                     break;
                 case Constants.MODE.LINE:
                     //update only last position
@@ -211,7 +197,6 @@ class Board extends React.Component{
 
                     //create new line
                     this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
-
                     break;
                 case Constants.MODE.CIRCLE:
                     var radius = Math.sqrt(dx*dx + dy*dy);
@@ -231,12 +216,13 @@ class Board extends React.Component{
 
                     let selector = new MRect('Rect',-1,new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
                     selector.fill = true;
-                    selector.opacity = 0.3;
+                    selector.opacity = Constants.SELECT_OPACITY;
 
                     //calculate collision for every entity on the board
                     for(var i in this.entities)
                     {
-                        this.entities[i].selected = MyMath.collision_check(this.entities[i],selector);
+                        if(this.entities[i] !== null)
+                            this.entities[i].selected = MyMath.collision_check(this.entities[i],selector);
                     }
 
                     //if mode doesnt create new entity, set it to null
@@ -249,16 +235,18 @@ class Board extends React.Component{
                             x: (stage.getPointerPosition().x - this.pan_position.x * stage.scaleX()) ,
                             y: (stage.getPointerPosition().y - this.pan_position.y * stage.scaleY()) ,
                         };
-
-                        //var touch1 = e.evt.touches[0];
-                        //var touch2 = e.evt.touches[1];
-
                         stage.position(newPos);
-                        console.log(newPos);
                         //stage.batchDraw();
                     }
-                    //console.log("Pann");
                     
+                    break;
+                case Constants.MODE.MATH_FIELD:
+                    if(this.state.math_field === "" || this.state.math_field ===null) {this.new_entity = null;return;}
+
+                    this.new_line_position[0] = this.initial_click_position.x;
+                    this.new_line_position[1] = this.initial_click_position.y;
+
+                    this.new_entity = new MField('Field',Util.next_key(this.entities),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
                     break;
                 default:
                      //if mode doesnt create new entity, set it to null
@@ -391,6 +379,7 @@ class Board extends React.Component{
     {
       //check if anything is selected
       if(!Util.is_anything_selected(this.entities)) {return;}
+
       //empty array
       this.copied_entities = [];
       for(var i in this.entities)
@@ -398,22 +387,20 @@ class Board extends React.Component{
         if(this.entities[i].selected) // if is selected
         {
           //using JSON to clone object
-          let entity = Util.get_object(JSON.parse(JSON.stringify(this.entities[i])));
+          let entity = Util.retrieve_object(Util.clone_object(this.entities[i]));
           this.copied_entities.push(entity);
         }
       }
-      console.log(this.copied_entities);
-      console.log(this.entities); 
       this.remove_selector();
     }
 
     paste_selected(offset)
     {
         //remove selector
-        this.remove_selector();
+        if(Util.is_anything_selected(this.entities)) {this.remove_selector();}
         for(var i in this.copied_entities)
         {
-            let entity = this.copied_entities[i];
+            let entity = Util.retrieve_object(Util.clone_object(this.copied_entities[i]));
             entity.key = Util.next_key(this.entities) + parseInt(i);
 
             //temporary
@@ -430,8 +417,6 @@ class Board extends React.Component{
             this.socket.emit(Constants.CANVAS_DATA  ,entity);
         }
         //clear copied entities
-        this.copied_entities = [];
-
         console.log(this.entities);
     }
 

@@ -9,6 +9,8 @@ export const CANVAS_WIDTH = 5000;
 export const CANVAS_HEIGHT = 5000;
 export const LATEX_TO_IMAGE = "https://math.now.sh?from=";
 export const SELECT_COLOR = "#7FC423";
+export const SELECT_OPACITY = 0.3;
+export const MATH_COLOR = "&color=black";
 export const MODE = {
     FREE_DRAW: 'free-draw',
     LINE: 'line',

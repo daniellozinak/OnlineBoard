@@ -19,6 +19,7 @@ export function vector_normalize(x,y)
 export function collision_check( entity, selector)
 {
     if(!entity instanceof Drawable || !selector instanceof MRect){ return null;}
+    if(entity === null || entity === undefined) {return false;}
 
     var my_selector = {
         x: selector.points[0],
