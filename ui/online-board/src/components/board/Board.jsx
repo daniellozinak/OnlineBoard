@@ -24,9 +24,9 @@ class Board extends React.Component{
     entities = [];
     new_entity = null;
     new_line_position = [];
-    entity_pointer = 0;
     copied_entities = [];
     mouse_down = false;
+    current_position=0;
 
     initial_click_position = null;
 
@@ -52,9 +52,8 @@ class Board extends React.Component{
             thickness: 10,
             mode: Constants.MODE.FREE_DRAW,
             math_field: null,
-            select_panel_data: {is_selected: Util.is_anything_selected(this.entities), x: 0, y:0},
+            select_panel_data: {is_selected: Util.is_there_selector(this.entities), x: 0, y:0},
         }
-        console.log("ptr: " + this.entity_pointer);
     }
 
     componentDidMount()
@@ -65,13 +64,11 @@ class Board extends React.Component{
             {
                 this.entities.push(Util.retrieve_object(data.content[i]));
             }
-            this.entity_pointer = data.pointer;
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
             let new_data = Util.retrieve_object(data);
             this.entities.push(new_data);
-            this.entity_pointer +=1;
         })
 
         this.socket.on(Constants.CANVAS_DATA_DELETE,(data) =>{
@@ -101,67 +98,48 @@ class Board extends React.Component{
             this.setState({is_drawing: true});
             this.initial_click_position = this.getRelativePointerPosition(stage);
             this.mouse_down = true;
+            this.copied_entities = [];
         }
 
         if(e.evt.button === Constants.RIGHT_BUTTON)
         {
-            if(typeof this.copied_entities === 'undefined' || this.copied_entities.length <= 0) {return;}
+            //disable right click context-menu
+            e.evt.preventDefault();
+
+            if(typeof this.copied_entities === 'undefined') {return;}
+            if(this.copied_entities.length === 0) {return;}
 
             let offset = {x: this.state.mouse_x - this.copied_entities[0].points[0],
                           y: this.state.mouse_y - this.copied_entities[0].points[1]};
-            //this.setState({is_panning: true});
+
             this.paste_selected(offset);
-            //disable right click context-menu
-            e.evt.preventDefault();
         }
         //clear new line position array
         this.new_line_position = [];
+        this.current_position = this.entities.length;
     }
 
     _onMouseUp = e =>{
-        console.log(this.entities);
         this.mouse_down = false;
-        if(this.entities[this.entity_pointer] === undefined) { return;}
 
         //selector
-        if(this.entities[this.entity_pointer].key === -1)
-        {
-            let cors = MyMath.get_selector(this.entities);
-            if(cors !== null)
-            {
-                this.entities[this.entity_pointer].points[0] = (this.entities[this.entity_pointer].width > 0)? cors.min_x : cors.max_x;
-                this.entities[this.entity_pointer].points[1] =  (this.entities[this.entity_pointer].height > 0)? cors.min_y : cors.max_y;
-                this.entities[this.entity_pointer].width = (this.entities[this.entity_pointer].width > 0)? cors.max_x - cors.min_x: cors.min_x - cors.max_x;
-                this.entities[this.entity_pointer].height = (this.entities[this.entity_pointer].height > 0)? cors.max_y - cors.min_y: cors.min_y - cors.max_y;
+        this.entities = Util.select(this.entities);
+        this.update_select_panel(e.currentTarget);
+        this.remove_selector();
 
-                this.update_select_panel(e.currentTarget);
-            }
-            else{
-                //delete selector from entities
-                this.remove_selector();
-            }
+        if(this.new_entity !== null && this.new_entity.key >=0)
+        {
+            this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
         }
 
-        if(e.evt.button === Constants.LEFT_BUTTON)
-        {
-            this.setState({is_drawing: false});
-            if(this.new_entity !== null && this.new_entity.key >=0)
-            {
-                this.entity_pointer ++;
-                this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
-            }
-        }
-        if(e.evt.button === Constants.RIGHT_BUTTON)
-        {
-            //this.setState({is_panning: false});
-        }
+        this.setState({is_drawing: false});
+        console.log(this.entities);
     }
 
     _onMouseMove = e =>{
         var stage = e.currentTarget;
         if(this.state.is_drawing && this.mouse_down)
         {
-
             this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
             this.setState({mouse_y: this.getRelativePointerPosition(stage).y});
 
@@ -174,7 +152,7 @@ class Board extends React.Component{
             this.new_entity = null;
 
             //added to fix the key generation
-            this.entities[this.entity_pointer] = this.new_entity;
+            this.entities[this.current_position] = this.new_entity;
 
             switch(this.state.mode)
             {
@@ -253,8 +231,7 @@ class Board extends React.Component{
 
                     break;
             }
-            if(this.new_entity!== null)
-                this.entities[this.entity_pointer] = this.new_entity;
+            this.entities[this.current_position] = this.new_entity;
 
             stage.batchDraw();
 
@@ -301,15 +278,15 @@ class Board extends React.Component{
 
     update_select_panel(stage)
     {
-      let shown = Util.is_anything_selected(this.entities);
+      let shown = Util.is_there_selector(this.entities);
       if(!shown) {return;}
 
-      let width = this.entities[this.entity_pointer].width;
-      let height = this.entities[this.entity_pointer].height;
+      let width = this.entities[this.entities.length - 1].width;
+      let height = this.entities[this.entities.length - 1].height;
 
 
-      let x = (width > 0) ? this.entities[this.entity_pointer].points[0] : this.entities[this.entity_pointer].points[0] + width;
-      let y = (height > 0 ) ? this.entities[this.entity_pointer].points[1] : this.entities[this.entity_pointer].points[1] + height;
+      let x = (width > 0) ? this.entities[this.entities.length - 1].points[0] : this.entities[this.entities.length - 1].points[0] + width;
+      let y = (height > 0 ) ? this.entities[this.entities.length - 1].points[1] : this.entities[this.entities.length - 1].points[1] + height;
 
       let scale =  stage.scaleX();
 
@@ -330,26 +307,27 @@ class Board extends React.Component{
 
     remove_selector()
     {
-      if(this.entities[this.entity_pointer] === undefined) {return;}
-      if(this.entities[this.entity_pointer].key !== -1) { return;}
-      this.entities.splice(this.entity_pointer,1);
-      this.setState({select_panel_data:
-        {is_selected: false,
-          x: 0,
-          y: 0 }
-      });
+        if(typeof this.entities[this.entities.length - 1] === 'undefined') {return;}
+        if(this.entities[this.entities.length - 1].key !== -1) { return;}
+        if(Util.is_anything_selected(this.entities) && this.copied_entities.length === 0) {return;}
+
+        this.entities.splice(this.entities.length - 1,1);
+        this.setState({select_panel_data:
+          {is_selected: false,
+            x: 0,
+            y: 0 }
+        });
     }
 
     delete_entity(index)
     {
       delete this.entities[index];
-      this.entity_pointer --;
     }
 
     delete_selected()
     {
       //check if anything is selected
-      if(!Util.is_anything_selected(this.entities)) {return;}
+      if(!Util.is_there_selector(this.entities)) {return;}
 
       for(var i in this.entities)
       {
@@ -378,7 +356,7 @@ class Board extends React.Component{
     copy_selected()
     {
       //check if anything is selected
-      if(!Util.is_anything_selected(this.entities)) {return;}
+      if(!Util.is_there_selector(this.entities)) {return;}
 
       //empty array
       this.copied_entities = [];
@@ -396,12 +374,12 @@ class Board extends React.Component{
 
     paste_selected(offset)
     {
-        //remove selector
-        if(Util.is_anything_selected(this.entities)) {this.remove_selector();}
+        console.log("paste?");
         for(var i in this.copied_entities)
         {
             let entity = Util.retrieve_object(Util.clone_object(this.copied_entities[i]));
-            entity.key = Util.next_key(this.entities) + parseInt(i);
+            entity.key = Util.next_key(this.entities) + 1;
+
 
             //temporary
             for(var j in entity.points)
@@ -410,8 +388,7 @@ class Board extends React.Component{
             }
 
             //add entity
-            this.entities[this.entity_pointer] = entity;
-            this.entity_pointer ++ ;
+            this.entities.push(entity);
 
             //emit entity
             this.socket.emit(Constants.CANVAS_DATA  ,entity);
