@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './style.css';
 
 
 class SelectPanel extends React.Component{
@@ -60,5 +60,4 @@ class SelectPanel extends React.Component{
     )
   }
 }
-
 export default SelectPanel;

@@ -104,3 +104,32 @@ export function select(entities)
   
   return filtered;
 }
+
+export function copy_entities(entities)
+{
+  //check if anything is selected
+  if(!Array.isArray(entities)) {return null;}
+  if(!is_there_selector(entities)) {return;}
+
+  //empty array
+  let copies = [];
+  for(var i in entities)
+  {
+    if(entities[i].selected) // if is selected
+    {
+      //using JSON to clone object
+      let entity = retrieve_object(clone_object(entities[i]));
+      copies.push(entity);
+    }
+  }
+  return copies;
+}
+
+export function screen_to_world(node)
+{
+  var transform = node.getAbsoluteTransform().copy();
+  transform.invert();
+  var position = node.getStage().getPointerPosition();
+
+  return transform.point(position);
+}

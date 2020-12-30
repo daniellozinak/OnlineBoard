@@ -12,11 +12,8 @@ import {MCircle} from '../../shapes/MCircle.js';
 import {MRect} from '../../shapes/MRect.js';
 import {MField} from '../../shapes/MField.js';
 
-import ColorPicker from '../color picker/ColorPicker';
-import SizePicker from '../size picker/SizePicker';
-import ModePicker from '../mode picker/ModePicker';
-import MathPicker from '../math picker/MathPicker';
 import SelectPanel from '../select panel/SelectPanel';
+import Panel from '../side panel/Panel';
 
 
 class Board extends React.Component{
@@ -83,8 +80,8 @@ class Board extends React.Component{
 
     _onMouseDown = e =>{
         var stage = e.currentTarget;
-        this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
-        this.setState({mouse_y: this.getRelativePointerPosition(stage).y});
+        this.setState({mouse_x: Util.screen_to_world(stage).x});
+        this.setState({mouse_y: Util.screen_to_world(stage).y});
         this.setState({select_panel_data:
           {is_selected: false,
             x: 0,
@@ -96,9 +93,11 @@ class Board extends React.Component{
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.setState({is_drawing: true});
-            this.initial_click_position = this.getRelativePointerPosition(stage);
+            this.initial_click_position = Util.screen_to_world(stage);
             this.mouse_down = true;
             this.copied_entities = [];
+
+            this.remove_selector();
         }
 
         if(e.evt.button === Constants.RIGHT_BUTTON)
@@ -125,7 +124,8 @@ class Board extends React.Component{
         //selector
         this.entities = Util.select(this.entities);
         this.update_select_panel(e.currentTarget);
-        this.remove_selector();
+
+        if(!Util.is_anything_selected(this.entities)) {this.remove_selector();}
 
         if(this.new_entity !== null && this.new_entity.key >=0)
         {
@@ -140,12 +140,12 @@ class Board extends React.Component{
         var stage = e.currentTarget;
         if(this.state.is_drawing && this.mouse_down)
         {
-            this.setState({mouse_x: this.getRelativePointerPosition(stage).x});
-            this.setState({mouse_y: this.getRelativePointerPosition(stage).y});
+            this.setState({mouse_x: Util.screen_to_world(stage).x});
+            this.setState({mouse_y: Util.screen_to_world(stage).y});
 
 
-            let dx = this.initial_click_position.x - this.getRelativePointerPosition(stage).x;
-            let dy = this.initial_click_position.y - this.getRelativePointerPosition(stage).y;
+            let dx = this.initial_click_position.x - Util.screen_to_world(stage).x;
+            let dy = this.initial_click_position.y - Util.screen_to_world(stage).y;
 
             let width = -1*dx;
             let height = -1*dy;
@@ -170,16 +170,16 @@ class Board extends React.Component{
                     //update only last position
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
-                    this.new_line_position[2] = this.getRelativePointerPosition(stage).x;
-                    this.new_line_position[3] = this.getRelativePointerPosition(stage).y;
+                    this.new_line_position[2] = Util.screen_to_world(stage).x;
+                    this.new_line_position[3] = Util.screen_to_world(stage).y;
 
                     //create new line
                     this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
                     break;
                 case Constants.MODE.CIRCLE:
                     var radius = Math.sqrt(dx*dx + dy*dy);
-                    this.new_line_position[0] = this.getRelativePointerPosition(stage).x;
-                    this.new_line_position[1] = this.getRelativePointerPosition(stage).y;
+                    this.new_line_position[0] = Util.screen_to_world(stage).x;
+                    this.new_line_position[1] = Util.screen_to_world(stage).y;
 
                     this.new_entity = new MCircle('Circle',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
@@ -214,7 +214,6 @@ class Board extends React.Component{
                             y: (stage.getPointerPosition().y - this.pan_position.y * stage.scaleY()) ,
                         };
                         stage.position(newPos);
-                        //stage.batchDraw();
                     }
                     
                     break;
@@ -241,8 +240,8 @@ class Board extends React.Component{
         }
 
         //set the last mouse coordinates
-        this.setState({last_mouse_x: this.getRelativePointerPosition(stage).x});
-        this.setState({last_mouse_y: this.getRelativePointerPosition(stage).y});
+        this.setState({last_mouse_x: Util.screen_to_world(stage).x});
+        this.setState({last_mouse_y: Util.screen_to_world(stage).y});
     }
 
     _onWheel = e =>{
@@ -275,11 +274,9 @@ class Board extends React.Component{
         this.update_select_panel(stage);
     }
 
-
     update_select_panel(stage)
     {
-      let shown = Util.is_there_selector(this.entities);
-      if(!shown) {return;}
+      if(!Util.is_there_selector(this.entities)) {return;}
 
       let width = this.entities[this.entities.length - 1].width;
       let height = this.entities[this.entities.length - 1].height;
@@ -299,7 +296,7 @@ class Board extends React.Component{
 
 
       this.setState({select_panel_data:
-        {is_selected: shown,
+        {is_selected: Util.is_there_selector(this.entities),
           x: (x * scale + x_diff - offset_x),
           y: (y * scale + y_diff) - offset_y }
       });
@@ -307,9 +304,8 @@ class Board extends React.Component{
 
     remove_selector()
     {
-        if(typeof this.entities[this.entities.length - 1] === 'undefined') {return;}
+        if(typeof this.entities[this.entities.length - 1] === 'undefined' || this.entities[this.entities.length - 1] === null) {return;}
         if(this.entities[this.entities.length - 1].key !== -1) { return;}
-        if(Util.is_anything_selected(this.entities) && this.copied_entities.length === 0) {return;}
 
         this.entities.splice(this.entities.length - 1,1);
         this.setState({select_panel_data:
@@ -352,23 +348,9 @@ class Board extends React.Component{
         this.entities = Util.filter_empty_array(this.entities);
     }
 
-    
     copy_selected()
     {
-      //check if anything is selected
-      if(!Util.is_there_selector(this.entities)) {return;}
-
-      //empty array
-      this.copied_entities = [];
-      for(var i in this.entities)
-      {
-        if(this.entities[i].selected) // if is selected
-        {
-          //using JSON to clone object
-          let entity = Util.retrieve_object(Util.clone_object(this.entities[i]));
-          this.copied_entities.push(entity);
-        }
-      }
+      this.copied_entities = Util.copy_entities(this.entities);
       this.remove_selector();
     }
 
@@ -397,73 +379,28 @@ class Board extends React.Component{
         console.log(this.entities);
     }
 
-    change_color(in_color)
-    {
-        this.setState({color: in_color});
-    }
-
-    change_size(in_size)
-    {
-        this.setState({thickness: in_size});
-    }
-
-    change_mode(in_mode)
-    {
-        this.setState({mode: in_mode});
-    }
-
-
-    getLatexMath(html)
-    {
-        this.setState({math_field: html});
-    }
-
-    //world coordinates
-    getRelativePointerPosition(node) {
-        var transform = node.getAbsoluteTransform().copy();
-        transform.invert();
-        var position = node.getStage().getPointerPosition();
-
-        return transform.point(position);
-    }
-
-    getRelativePointPosition(node,point)
-    {
-      var transform = node.getAbsoluteTransform().copy();
-      transform.invert();
-
-      return transform.point(point);
-    }
+    change_color(in_color){this.setState({color: in_color}); }
+    change_size(in_size) {this.setState({thickness: in_size}); }
+    change_mode(in_mode){this.setState({mode: in_mode});}
+    get_latex(src){this.setState({math_field: src});}
 
     render(){
         const items = this.entities;
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
-                <div className="panel" > Side Panel
-                <div classname="panel-wrapper">
-                    <div className="color-picker">
-                        <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
-                    </div>
-                    <div className="size-picker">
-                        <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
-                    </div>
-                    <div className="mode-picker">
-                        <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
-                    </div>
-                    <div className="math-picker">
-                        <MathPicker data={{change_field_function: this.getLatexMath.bind(this)}}></MathPicker>
-                    </div>
-                    <div className="panning">
-                        <button onClick={()=> {this.setState({mode: Constants.MODE.PANNING})}}>Pan</button>
-                    </div>
-                </div>
+                <div className="panel">
+                <Panel 
+                color_callback={{color_callback: this.change_color.bind(this)}}
+                size_callback={{size_callback: this.change_size.bind(this)}}
+                mode_callback={{mode_callback: this.change_mode.bind(this)}}
+                latex_callback={{latex_callback: this.get_latex.bind(this)}}
+                />
                 <SelectPanel
                 data={this.state.select_panel_data}
                 callback_delete={{delete_callback: this.delete_selected.bind(this)}}
                 callback_copy={{copy_callback: this.copy_selected.bind(this)}}
                 />
-
-            </div>
+                </div>
                 <Stage className="board-stage"
                 width={window.innerWidth} height={window.innerHeight}
                 onMouseDown ={this._onMouseDown.bind(this)}
@@ -477,8 +414,7 @@ class Board extends React.Component{
                         })}
                     </Layer>
                 </Stage>
-            </div>
-        )
+            </div>)
     }
 }
 
