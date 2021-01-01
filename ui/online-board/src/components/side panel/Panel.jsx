@@ -24,6 +24,7 @@ class Panel extends React.Component{
     set_pan(){this.props.mode_callback.mode_callback(Constants.MODE.PANNING);}
     set_select(){this.props.mode_callback.mode_callback(Constants.MODE.SELECT);}
     get_latex(src){this.props.latex_callback.latex_callback(src);}
+    get_visibility(show){this.props.math_visible_callback.math_visible_callback(show);}
 
     render(){
         return(
@@ -36,10 +37,13 @@ class Panel extends React.Component{
                         <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
                     </div>
                     <div className="mode-picker">
-                        <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}></ModePicker>
+                        <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}/>
                     </div>
                     <div className="math-picker">
-                        <MathPicker data={{change_field_function: this.get_latex.bind(this)}}></MathPicker>
+                        <MathPicker 
+                        data={{change_field_function: this.get_latex.bind(this)}}
+                        visibility={{change_visibility_function: this.get_visibility.bind(this)}}
+                        />
                     </div>
                     <div className="panning">
                         <button onClick={this.set_pan.bind(this)}>Pan</button>

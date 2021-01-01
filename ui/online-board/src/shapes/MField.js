@@ -18,14 +18,15 @@ export class MField extends Drawable{
         this.width = temp_image.width;
         this.height = temp_image.height;
         return(
-            <Image
-            key={this.key}
-            x={this.points[0]}
-            y={this.points[1]}
-            width={this.width}
-            height={this.height}
-            image={temp_image}
-        />)
+                <Image
+                key={this.key}
+                x={this.points[0]}
+                y={this.points[1]}
+                width={this.width}
+                height={this.height}
+                image={temp_image}
+            />
+            )
     }
 
     get_offset() 

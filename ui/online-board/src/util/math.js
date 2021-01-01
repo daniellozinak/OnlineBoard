@@ -101,3 +101,9 @@ export function get_selector(entities)
 
     return {max_x: max_x, min_x: min_x, max_y: max_y, min_y: min_y};
 }
+
+export function is_dragging(mouse_pos,selector)
+{
+    if(selector === null) {return false;}
+    return mouse_pos.x >= selector.points[0] && mouse_pos.x <= selector.points[0] + selector.width && mouse_pos.y >= selector.points[1] && mouse_pos.y <= selector.points[1] + selector.height;
+}

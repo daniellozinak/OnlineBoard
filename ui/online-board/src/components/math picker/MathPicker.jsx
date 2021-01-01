@@ -50,6 +50,7 @@ class MathPicker extends React.Component{
 
     _onClick = e =>{
         this.setState({show:!this.state.show});
+        this.props.visibility.change_visibility_function(!this.state.show);
     }
 
     _onChange = e =>{
@@ -85,7 +86,8 @@ class MathPicker extends React.Component{
 
     updateMathField()
     {
-        let output = Util.encode_url(this.math_field.latex()) + Constants.MATH_COLOR;
+        let output = this.math_field.latex() + Constants.MATH_COLOR;
+        //let output = Util.encode_url(this.math_field.latex()) + Constants.MATH_COLOR;
         this.props.data.change_field_function(output);
     }
 
