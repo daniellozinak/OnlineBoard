@@ -28,6 +28,8 @@ class Board extends React.Component{
     selector = null;
 
     is_dragging = false;
+    is_drawing = false;
+    initial_selector = null;
 
     initial_click_position = null;
 
@@ -37,8 +39,6 @@ class Board extends React.Component{
     {
         super(props);
         this.state = {
-            is_drawing: false,
-            is_panning: false,
             mouse_x: 0,
             mouse_y: 0,
             last_mouse_x: 0,
@@ -89,11 +89,12 @@ class Board extends React.Component{
             y: 0}
         });
 
+        this.mouse_down = true;
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
-            this.setState({is_drawing: true});
+            this.is_drawing = true;
+            this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
             this.initial_click_position = Util.screen_to_world(this.stage);
-            this.mouse_down = true;
             this.copied_entities = [];
 
             if(!this.is_dragging) {this.remove_selector(); this.selector = null;}
@@ -128,7 +129,7 @@ class Board extends React.Component{
 
         this.emit_data();
 
-        this.setState({is_drawing: false});
+        this.is_drawing = false;
         console.log(this.entities);
     }
 
@@ -137,7 +138,7 @@ class Board extends React.Component{
 
         this.setState({mouse_x: Util.screen_to_world(this.stage).x});
         this.setState({mouse_y: Util.screen_to_world(this.stage).y});
-        if(this.state.is_drawing && this.mouse_down)
+        if(this.is_drawing && this.mouse_down)
         {
 
 
@@ -187,7 +188,7 @@ class Board extends React.Component{
                     this.new_entity = new MRect('Rect',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,width,height);
                     break;
                 case Constants.MODE.SELECT:
-                    if(this.is_dragging) {break;}
+                    if(this.is_dragging) { this.is_drawing = false; break;}
                     let new_points = [this.initial_click_position.x,this.initial_click_position.y];
 
                     this.selector = new MRect('Rect',-1,new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
@@ -201,6 +202,7 @@ class Board extends React.Component{
                             this.entities[i].selected = MyMath.collision_check(this.entities[i],this.selector);
                     }
 
+                    this.initial_selector =  {x: new_points[0],y: new_points[1]};
                     //if mode doesnt create new entity, set it to null
                     // this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},selector);
                     // console.log(this.is_dragging);
@@ -241,10 +243,10 @@ class Board extends React.Component{
             return;
         }
 
-        this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
-        if(this.is_dragging)
+        if(this.is_dragging && this.mouse_down)
         {
-            //console.log("moving");
+            this.selector = Util.move_selector(this.selector,{x:this.state.mouse_x, y: this.state.mouse_y},
+                {x: this.initial_click_position.x - this.initial_selector.x,y: this.initial_click_position.y - this.initial_selector.y},this.stage);
         }
 
         //set the last mouse coordinates
@@ -406,6 +408,7 @@ class Board extends React.Component{
         this.stage.batchDraw();
         this.setState({math_field: ""});
     }
+    
     get_latex(src)
     {
         this.setState({math_field: src});

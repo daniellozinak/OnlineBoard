@@ -142,29 +142,20 @@ export function screen_to_world_point(node,point)
   return transform.point(point);
 }
 
-export function move_selector(entities,mouse_direction)
-{
-  let selector = null;
-  entities.forEach(function(element,i)
-  {
-    if(element.key === -1) {selector = entities[i];}
-  })
-  if(selector === null) {return entities;}
-
-  selector.points[0] += mouse_direction.x;
-  selector.points[1] += mouse_direction.y;
-
-  return entities;
-}
-
 export function get_math_position(stage)
 {
   
   if(stage === null)
   {
-    console.log("null");
     return {x: window.innerWidth/2 ,y: window.innerHeight/2}
   }
 
   return {x: -1*stage.position().x + (stage.width()/2), y: -1*stage.position().y + (stage.height()/2)}
+}
+
+export function move_selector(selector,mouse_position,intial_offset,node)
+{
+  let transformed = screen_to_world_point(node,intial_offset);
+  selector.points = [mouse_position.x - intial_offset.x,mouse_position.y - intial_offset.y];
+  return selector;
 }
