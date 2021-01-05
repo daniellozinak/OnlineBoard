@@ -2,9 +2,9 @@ import { Drawable } from "./Drawable";
 import {Line} from 'react-konva';
 
 export class MLine extends Drawable{
-    constructor(type,key,points,color,thickness)
+    constructor(key,points,color,thickness)
     {
-        super(type,key,points);
+        super('Line',key,points);
         if(typeof color !== "string" || typeof thickness !== "number") {throw new Error("invalid arguments");}
         this.color = color;
         this.thickness = thickness;
@@ -12,7 +12,6 @@ export class MLine extends Drawable{
 
     create(key,points,color,thickness)
     {
-        
         return new MLine("Line",key,points,color,thickness);
     }
 

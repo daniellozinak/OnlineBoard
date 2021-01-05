@@ -2,9 +2,9 @@ import { Drawable } from "./Drawable";
 import {Image} from 'react-konva';
 
 export class MField extends Drawable{
-    constructor(type,key,points,src)
+    constructor(key,points,src)
     {
-        super(type,key,points);
+        super('Field',key,points);
         if(typeof src !== "string") {throw new Error("invalid arguments");}
         this.src = src;
         this.width = 0;

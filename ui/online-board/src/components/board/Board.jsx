@@ -11,6 +11,7 @@ import {MLine} from '../../shapes/MLine.js';
 import {MCircle} from '../../shapes/MCircle.js';
 import {MRect} from '../../shapes/MRect.js';
 import {MField} from '../../shapes/MField.js';
+import {Selector} from '../../shapes/Selector.js';
 
 import SelectPanel from '../select panel/SelectPanel';
 import Panel from '../side panel/Panel';
@@ -29,7 +30,6 @@ class Board extends React.Component{
 
     is_dragging = false;
     is_drawing = false;
-    initial_selector = null;
 
     initial_click_position = null;
 
@@ -75,7 +75,7 @@ class Board extends React.Component{
 
         this.socket.on(Constants.CANVAS_DATA_FILTER,(data) =>{
             this.filter();
-          })
+        })
     }
 
 
@@ -162,7 +162,7 @@ class Board extends React.Component{
                     this.new_line_position.push(this.state.mouse_y);
 
                     //create new line
-                    this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine(Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
                     break;
                 case Constants.MODE.LINE:
                     //update only last position
@@ -172,37 +172,42 @@ class Board extends React.Component{
                     this.new_line_position[3] = Util.screen_to_world(this.stage).y;
 
                     //create new line
-                    this.new_entity = new MLine('Line',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
+                    this.new_entity = new MLine(Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness);
                     break;
                 case Constants.MODE.CIRCLE:
                     var radius = Math.sqrt(dx*dx + dy*dy);
                     this.new_line_position[0] = Util.screen_to_world(this.stage).x;
                     this.new_line_position[1] = Util.screen_to_world(this.stage).y;
 
-                    this.new_entity = new MCircle('Circle',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,radius);
+                    this.new_entity = new MCircle(Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,radius);
                     break;
                 case Constants.MODE.RECTANGLE:
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
 
-                    this.new_entity = new MRect('Rect',Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,width,height);
+                    this.new_entity = new MRect(Util.next_key(this.entities),this.new_line_position,this.state.color,this.state.thickness,width,height);
                     break;
                 case Constants.MODE.SELECT:
                     if(this.is_dragging) { this.is_drawing = false; break;}
                     let new_points = [this.initial_click_position.x,this.initial_click_position.y];
 
-                    this.selector = new MRect('Rect',-1,new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
+                    this.selector = new Selector(new_points,Constants.SELECT_COLOR,this.state.thickness,width,height);
                     this.selector.fill = true;
                     this.selector.opacity = Constants.SELECT_OPACITY;
 
                     //calculate collision for every entity on the board
                     for(var i in this.entities)
                     {
-                        if(this.entities[i] !== null)
-                            this.entities[i].selected = MyMath.collision_check(this.entities[i],this.selector);
+                        let current_entity = this.entities[i];
+                        if(current_entity !== null)
+                        {
+                            current_entity.selected = MyMath.collision_check(current_entity,this.selector);
+                            if(current_entity.selected) { this.selector.attach(current_entity);}
+                            else{this.selector.dettach(current_entity);}
+                        }
                     }
 
-                    this.initial_selector =  {x: new_points[0],y: new_points[1]};
+                    this.selector.set_offset({x: new_points[0],y: new_points[1]});
                     //if mode doesnt create new entity, set it to null
                     // this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},selector);
                     // console.log(this.is_dragging);
@@ -226,7 +231,7 @@ class Board extends React.Component{
                     this.new_line_position[0] = this.initial_click_position.x;
                     this.new_line_position[1] = this.initial_click_position.y;
 
-                    this.new_entity = new MField('Field',Util.next_key(this.entities),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
+                    this.new_entity = new MField(Util.next_key(this.entities),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
                     break;
                 default:
                      //if mode doesnt create new entity, set it to null
@@ -245,8 +250,7 @@ class Board extends React.Component{
 
         if(this.is_dragging && this.mouse_down)
         {
-            this.selector = Util.move_selector(this.selector,{x:this.state.mouse_x, y: this.state.mouse_y},
-                {x: this.initial_click_position.x - this.initial_selector.x,y: this.initial_click_position.y - this.initial_selector.y},this.stage);
+            this.selector.move({x:this.state.mouse_x, y: this.state.mouse_y},this.initial_click_position,this.stage);
         }
 
         //set the last mouse coordinates

@@ -3,9 +3,9 @@ import {Rect} from 'react-konva';
 
 export class MRect extends Drawable
 {
-    constructor(type,key,points,color,thickness,width,height)
+    constructor(key,points,color,thickness,width,height)
     {
-        super(type,key,points);
+        super('Rect',key,points);
         if(typeof color !== "string" || typeof thickness !== "number" || typeof width !== "number" || typeof height !== "number") {throw new Error("invalid arguments");}
         this.color = color;
         this.thickness = thickness;

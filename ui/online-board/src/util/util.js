@@ -59,13 +59,13 @@ export function retrieve_object(data)
     switch(data.type)
     {
         case "Line":
-            return new MLine("Line",data.key,data.points,data.color,data.thickness);
+            return new MLine(data.key,data.points,data.color,data.thickness);
         case "Circle":
-            return new MCircle("Circle",data.key,data.points,data.color,data.thickness,data.radius);
+            return new MCircle(data.key,data.points,data.color,data.thickness,data.radius);
         case "Rect":
-            return new MRect("Rect",data.key,data.points,data.color,data.thickness,data.width,data.height);
+            return new MRect(data.key,data.points,data.color,data.thickness,data.width,data.height);
         case "Field":
-            return new MField("Field",data.key,data.points,data.src);
+            return new MField(data.key,data.points,data.src);
         default:
             return null;
     }
@@ -151,11 +151,4 @@ export function get_math_position(stage)
   }
 
   return {x: -1*stage.position().x + (stage.width()/2), y: -1*stage.position().y + (stage.height()/2)}
-}
-
-export function move_selector(selector,mouse_position,intial_offset,node)
-{
-  let transformed = screen_to_world_point(node,intial_offset);
-  selector.points = [mouse_position.x - intial_offset.x,mouse_position.y - intial_offset.y];
-  return selector;
 }

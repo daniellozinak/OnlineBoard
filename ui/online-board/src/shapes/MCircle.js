@@ -3,9 +3,9 @@ import {Circle} from 'react-konva';
 
 export class MCircle extends Drawable
 {
-    constructor(type,key,points,color,thickness,radius)
+    constructor(key,points,color,thickness,radius)
     {
-        super(type,key,points);
+        super('Circle',key,points);
         if(typeof color !== "string" || typeof thickness !== "number" || typeof radius !== "number") {throw new Error("invalid arguments");}
         this.color = color;
         this.thickness = thickness;

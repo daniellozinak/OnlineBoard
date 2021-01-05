@@ -11,4 +11,13 @@ export class Drawable{
     draw(){}
     self(){}
     to_rect(){}
+
+
+    notify(moved_by)
+    {
+        for(var i in this.points)
+        {
+            this.points[i] += (i%2==0)? moved_by.x :  moved_by.y;
+        }
+    }
 };
