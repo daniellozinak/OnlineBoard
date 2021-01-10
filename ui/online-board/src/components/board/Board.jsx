@@ -101,7 +101,7 @@ class Board extends React.Component{
             this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
             this.initial_click_position = Util.screen_to_world(this.stage);
             this.copied_entities = [];
-
+            if(this.selector !== null) {this.selector.set_offset();}
             if(!this.is_dragging) {this.remove_selector(); this.selector = null;}
         }
 
@@ -211,11 +211,8 @@ class Board extends React.Component{
                             else{this.selector.dettach(current_entity);}
                         }
                     }
-
-                    this.selector.set_offset({x: new_points[0],y: new_points[1]});
-                    //if mode doesnt create new entity, set it to null
-                    // this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},selector);
-                    // console.log(this.is_dragging);
+                    
+                    this.selector.set_offset();
 
                     this.new_entity = this.selector;
                     break;
@@ -296,6 +293,7 @@ class Board extends React.Component{
     update_select_panel(stage)
     {
       if(!Util.is_there_selector(this.entities)) {return;}
+      if(this.entities[this.entities.length - 1] === null) {return;}
 
       let width = this.entities[this.entities.length - 1].width;
       let height = this.entities[this.entities.length - 1].height;
@@ -425,7 +423,7 @@ class Board extends React.Component{
 
         let position = Util.get_math_position(this.stage);
         console.log(position);
-        this.new_entity = new MField('Field',Util.next_key(this.entities),[position.x, position.y],Constants.LATEX_TO_IMAGE + this.state.math_field);
+        this.new_entity = new MField(Util.next_key(this.entities),[position.x, position.y],Constants.LATEX_TO_IMAGE + this.state.math_field);
     }
 
     render(){

@@ -18,19 +18,17 @@ export class Selector extends MRect{
 
     move(mouse_position,initial_click,socket)
     {
-        //let mouse = Util.screen_to_world_point(node,initial_click);
         let offset = {x: initial_click.x - this.offset.x,y: initial_click.y - this.offset.y}
 
-        let transformed = offset;
-
-        this.points = [mouse_position.x - transformed.x,mouse_position.y - transformed.y];
+        this.points = [mouse_position.x - offset.x,mouse_position.y - offset.y];
         this.notify(socket);
         this.last_position = {x: this.points[0],y: this.points[1]};
     }
 
-    set_offset(offset)
+    set_offset()
     {
-        this.offset = offset;
+        this.offset = {x: this.points[0],y:this.points[1]};
+        this.last_position = {x: this.points[0],y: this.points[1]};
     }
 
     notify(socket)
