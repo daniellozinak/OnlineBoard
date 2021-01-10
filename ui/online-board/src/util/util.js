@@ -152,3 +152,16 @@ export function get_math_position(stage)
 
   return {x: -1*stage.position().x + (stage.width()/2), y: -1*stage.position().y + (stage.height()/2)}
 }
+
+export function move_entity(key,points,entities)
+{ 
+  var filtered = filter_empty_array(entities);
+  for(var i in filtered)
+  {
+    if(filtered[i].key === key)
+    {
+      filtered[i].points = points;
+    }
+  }
+  return filtered;
+}

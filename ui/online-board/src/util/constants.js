@@ -5,6 +5,7 @@ export const CANVAS_DATA = 'canvas-data';
 export const CANVAS_DATA_DELETE = 'canvas-data-delete';
 export const CANVAS_DATA_FILTER = 'canvas-data-filter';
 export const INITIAL_CANVAS_DATA = 'canvas-data-initial';
+export const CANVAS_DATA_MOVE = 'canvas-data-move';
 export const CANVAS_WIDTH = 5000;
 export const CANVAS_HEIGHT = 5000;
 export const LATEX_TO_IMAGE = "https://math.now.sh?from=";

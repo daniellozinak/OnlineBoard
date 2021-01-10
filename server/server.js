@@ -16,6 +16,20 @@ function filter_empty_array(array)
   return filtered;
 }
 
+function move_content(data)
+{
+  if(typeof data !== 'object') {return;}
+  if(!data.hasOwnProperty('key') || !data.hasOwnProperty('points')){return;}
+  
+  for(var i in current_content)
+  {
+    if(current_content[i].key === data.key)
+    {
+      current_content[i].points = data.points;
+    }
+  }
+}
+
 io.on('connection', (socket)=>{
     console.log("new user online " + socket.id);
 
@@ -31,6 +45,11 @@ io.on('connection', (socket)=>{
       delete current_content[data];
       current_pointer--;
       socket.broadcast.emit('canvas-data-delete',data);
+    })
+
+    socket.on('canvas-data-move',(data)=>{
+      move_content(data);
+      socket.broadcast.emit('canvas-data-move',data);
     })
 
     socket.on('canvas-data-filter',(data)=>{

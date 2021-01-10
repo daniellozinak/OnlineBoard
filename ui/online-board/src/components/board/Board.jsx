@@ -76,6 +76,11 @@ class Board extends React.Component{
         this.socket.on(Constants.CANVAS_DATA_FILTER,(data) =>{
             this.filter();
         })
+
+        this.socket.on(Constants.CANVAS_DATA_MOVE,(data)=>{
+            this.entities = Util.move_entity(data.key,data.points,this.entities);
+            //TODO: update selector (ak ma prijimatel selctor, neposunie sa s entitami)
+        })
     }
 
 
@@ -250,7 +255,7 @@ class Board extends React.Component{
 
         if(this.is_dragging && this.mouse_down)
         {
-            this.selector.move({x:this.state.mouse_x, y: this.state.mouse_y},this.initial_click_position,this.stage);
+            this.selector.move({x:this.state.mouse_x, y: this.state.mouse_y},this.initial_click_position,this.socket);
         }
 
         //set the last mouse coordinates
