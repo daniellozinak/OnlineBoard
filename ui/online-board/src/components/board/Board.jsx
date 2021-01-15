@@ -16,6 +16,7 @@ import {Selector} from '../../shapes/Selector.js';
 
 import SelectPanel from '../select panel/SelectPanel';
 import Panel from '../side panel/Panel';
+import MathList from '../math list/MathList'
 
 
 class Board extends React.Component{
@@ -426,6 +427,7 @@ class Board extends React.Component{
         const items = this.entities;
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
+                <MathList className="math-list-container"/>
                 <div className="panel">
                 <Panel 
                 color_callback={{color_callback: this.change_color.bind(this)}}

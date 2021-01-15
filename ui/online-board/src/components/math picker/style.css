@@ -12,13 +12,6 @@
     width: auto;
 }
 
-.math-panel-keyboard{
-    display: grid;
-    grid-template-columns: repeat(5,1fr);
-    grid-gap: 0.5em;
-    min-width: 0;
-    min-height: 0;
-}
 
 .math-panel-keyboard-control{
     display:grid;
