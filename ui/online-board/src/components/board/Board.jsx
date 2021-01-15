@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{Suspense} from 'react';
 import {Stage,Layer} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
@@ -12,6 +12,7 @@ import {MCircle} from '../../shapes/MCircle.js';
 import {MRect} from '../../shapes/MRect.js';
 import {MField} from '../../shapes/MField.js';
 import {Selector} from '../../shapes/Selector.js';
+
 
 import SelectPanel from '../select panel/SelectPanel';
 import Panel from '../side panel/Panel';
@@ -53,6 +54,7 @@ class Board extends React.Component{
             select_panel_data: {is_selected: Util.is_there_selector(this.entities), x: 0, y:0},
         }
     }
+
 
     componentDidMount()
     {
@@ -98,6 +100,9 @@ class Board extends React.Component{
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             this.is_drawing = true;
+            // import('../../util/math.js').then( (math) =>{
+            //     this.is_dragging = math.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
+            // })
             this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
             this.initial_click_position = Util.screen_to_world(this.stage);
             this.copied_entities = [];
@@ -227,17 +232,8 @@ class Board extends React.Component{
                     }
                     
                     break;
-                case Constants.MODE.MATH_FIELD:
-                    if(this.state.math_field === "" || this.state.math_field ===null) {this.new_entity = null;return;}
-
-                    this.new_line_position[0] = this.initial_click_position.x;
-                    this.new_line_position[1] = this.initial_click_position.y;
-
-                    this.new_entity = new MField(Util.next_key(this.entities),this.new_line_position,Constants.LATEX_TO_IMAGE + this.state.math_field);
-                    break;
                 default:
                      //if mode doesnt create new entity, set it to null
-
                     break;
             }
             this.entities[this.current_position] = this.new_entity;
@@ -245,8 +241,8 @@ class Board extends React.Component{
             this.stage.batchDraw();
 
             //set the last mouse coordinates
-            this.setState({last_mouse_x: this.state.mouse_x});
-            this.setState({last_mouse_y: this.state.mouse_y});
+            this.setState((state) =>({last_mouse_x: state.mouse_x}));
+            this.setState((state) =>({last_mouse_y: state.mouse_y}));
             return;
         }
 
@@ -412,7 +408,7 @@ class Board extends React.Component{
         if(show) {return;}
         this.entities.push(this.new_entity);
         this.emit_data();
-        this.stage.batchDraw();
+        if(this.stage !== null) {this.stage.batchDraw();}
         this.setState({math_field: ""});
     }
     

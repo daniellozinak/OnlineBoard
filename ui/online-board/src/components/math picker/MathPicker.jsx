@@ -49,7 +49,7 @@ class MathPicker extends React.Component{
     }
 
     _onClick = e =>{
-        this.setState({show:!this.state.show});
+        this.setState((state) =>({show: !state.show}));
         this.props.visibility.change_visibility_function(!this.state.show);
     }
 

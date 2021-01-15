@@ -1,12 +1,12 @@
-import React from 'react';
+import React,{lazy,Suspense} from 'react';
 import './style.css';
-
-import ColorPicker from '../color picker/ColorPicker';
-import SizePicker from '../size picker/SizePicker';
-import ModePicker from '../mode picker/ModePicker';
-import MathPicker from '../math picker/MathPicker';
-
 import * as Constants from '../../util/constants.js';
+
+
+const ColorPicker = lazy(()=> {return import('../color picker/ColorPicker')});
+const SizePicker = lazy(()=> {return import('../size picker/SizePicker')});
+const ModePicker = lazy(()=> {return import('../mode picker/ModePicker')});
+const MathPicker = lazy(()=> {return import('../math picker/MathPicker')}); 
 
 class Panel extends React.Component{
 
@@ -26,9 +26,14 @@ class Panel extends React.Component{
     get_latex(src){this.props.latex_callback.latex_callback(src);}
     get_visibility(show){this.props.math_visible_callback.math_visible_callback(show);}
 
+    renderLoader = () => {
+        return <p>Loading</p>
+    }
+
     render(){
         return(
             <div>
+                <Suspense fallback={this.renderLoader()}>
                 Side
                 <div className="color-picker">
                         <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
@@ -51,6 +56,7 @@ class Panel extends React.Component{
                     <div className="select">
                         <button onClick={this.set_select.bind(this)}>Slct</button>
                 </div>
+                </Suspense>
             </div>
         )
     }
