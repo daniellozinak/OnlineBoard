@@ -1,5 +1,5 @@
 .board{
-    display: flex;
+    position: relative;
 }
 
 .panel{
@@ -15,39 +15,16 @@
     display: list-item;
 }
 
-.color-picker{
-   position: absolute;
-   left:2em;
-}
-
-.size-picker{
-    position: absolute;
-    top:2em;
-    left:2em;
-}
-
-.mode-picker{
-    position: absolute;
-    left:2em;
-    top:6.5em;
-}
-
-.math-picker{
-    position: absolute;
-    left:2em;
-    top:9em;
-}
-
-.panning{
-    position: absolute;
-    left:1.2em;
-    top:12em;
-}
-
-.select-delete-button{
-  position:relative;
-}
-
 .math-list-container{
-    justify-content: left;
+    position: absolute;
+    top:5em;
+    left:90%;
+    z-index: 2;
+}
+
+.select-panel{
+    position: absolute;
+    top: 5em;
+    left: 2em;
+    z-index: 2;
 }

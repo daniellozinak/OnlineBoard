@@ -404,44 +404,49 @@ class Board extends React.Component{
     change_color(in_color){this.setState({color: in_color}); }
     change_size(in_size) {this.setState({thickness: in_size}); }
     change_mode(in_mode){this.setState({mode: in_mode});}
-    math_field_visibility(show)
-    {
-        if(show) {return;}
-        this.entities.push(this.new_entity);
-        this.emit_data();
-        if(this.stage !== null) {this.stage.batchDraw();}
-        this.setState({math_field: ""});
-    }
-    
-    get_latex(src)
-    {
-        this.setState({math_field: src});
-        if(this.state.math_field === '' || this.state.math_field === Constants.MATH_COLOR || this.stage === null || this.state.math_field === null) {return;}
 
-        let position = Util.get_math_position(this.stage);
-        console.log(position);
-        this.new_entity = new MField(Util.next_key(this.entities),[position.x, position.y],Constants.LATEX_TO_IMAGE + this.state.math_field);
-    }
+
+    // math_field_visibility(show)
+    // {
+    //     if(show) {return;}
+    //     this.entities.push(this.new_entity);
+    //     this.emit_data();
+    //     if(this.stage !== null) {this.stage.batchDraw();}
+    //     this.setState({math_field: ""});
+    // }
+    
+    // get_latex(src)
+    // {
+    //     this.setState({math_field: src});
+    //     if(this.state.math_field === '' || this.state.math_field === Constants.MATH_COLOR || this.stage === null || this.state.math_field === null) {return;}
+
+    //     let position = Util.get_math_position(this.stage);
+    //     console.log(position);
+    //     this.new_entity = new MField(Util.next_key(this.entities),[position.x, position.y],Constants.LATEX_TO_IMAGE + this.state.math_field);
+    // }
 
     render(){
         const items = this.entities;
         return(
             <div className="board" onContextMenu={(e)=> e.preventDefault()}>
-                <MathList className="math-list-container"/>
                 <div className="panel">
-                <Panel 
-                color_callback={{color_callback: this.change_color.bind(this)}}
-                size_callback={{size_callback: this.change_size.bind(this)}}
-                mode_callback={{mode_callback: this.change_mode.bind(this)}}
-                latex_callback={{latex_callback: this.get_latex.bind(this)}}
-                math_visible_callback={{math_visible_callback: this.math_field_visibility.bind(this)}}
-                />
-                <SelectPanel
-                data={this.state.select_panel_data}
-                callback_delete={{delete_callback: this.delete_selected.bind(this)}}
-                callback_copy={{copy_callback: this.copy_selected.bind(this)}}
-                />
+                    <Panel
+                    color_callback={{color_callback: this.change_color.bind(this)}}
+                    size_callback={{size_callback: this.change_size.bind(this)}}
+                    mode_callback={{mode_callback: this.change_mode.bind(this)}}
+                    />
                 </div>
+                <div className="select-panel">
+                    <SelectPanel
+                    data={this.state.select_panel_data}
+                    callback_delete={{delete_callback: this.delete_selected.bind(this)}}
+                    callback_copy={{copy_callback: this.copy_selected.bind(this)}}
+                    />
+                </div>
+                <div className="math-list-container">
+                    <MathList/>
+                </div>
+                
                 <Stage className="board-stage"
                 width={window.innerWidth} height={window.innerHeight}
                 onMouseDown ={this._onMouseDown.bind(this)}

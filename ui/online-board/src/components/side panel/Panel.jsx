@@ -44,12 +44,6 @@ class Panel extends React.Component{
                     <div className="mode-picker">
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}/>
                     </div>
-                    <div className="math-picker">
-                        <MathPicker 
-                        data={{change_field_function: this.get_latex.bind(this)}}
-                        visibility={{change_visibility_function: this.get_visibility.bind(this)}}
-                        />
-                    </div>
                     <div className="panning">
                         <button onClick={this.set_pan.bind(this)}>Pan</button>
                     </div>

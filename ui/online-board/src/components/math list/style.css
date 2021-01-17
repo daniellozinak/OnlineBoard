@@ -1,0 +1,10 @@
+.math-list{
+    display: flex;
+    flex-direction: column; 
+    gap: 1em;
+    position: absolute;
+    right: -5em;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+}
