@@ -54,6 +54,8 @@ class Board extends React.Component{
             math_field: null,
             select_panel_data: {is_selected: Util.is_there_selector(this.entities), x: 0, y:0},
         }
+
+        this.mathlistRef = React.createRef();
     }
 
 
@@ -413,13 +415,15 @@ class Board extends React.Component{
         let x = e.clientX;
         let y = e.clientY;
         let position = {x: x, y:y};
-        let src = e.dataTransfer.getData("src");
+        let data = JSON.parse(e.dataTransfer.getData("element"));
         let new_position = (this.stage === null)? position : Util.screen_to_world_point(this.stage,position);
 
-        this.new_entity = new MField(Util.next_key(this.entities),[new_position.x,new_position.y],src);
+        this.new_entity = new MField(Util.next_key(this.entities),[new_position.x,new_position.y],data.src);
         this.entities = [this.new_entity,...this.entities];
         this.emit_data();
         this.new_entity = null;
+
+        this.mathlistRef.current.delete(data.id);
     }
 
     render(){
@@ -444,7 +448,7 @@ class Board extends React.Component{
                     />
                 </div>
                 <div className="math-list-container">
-                    <MathList/>
+                    <MathList ref={this.mathlistRef}/>
                 </div>
                 
                 <Stage className="board-stage"

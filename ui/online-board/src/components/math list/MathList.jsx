@@ -62,7 +62,7 @@ class MathList extends React.Component{
     delete(element)
     {
         if(typeof this.state.fields === 'undefined') {return;}
-        let key = element.props.id;
+        let key = element;
         const filtered = this.state.fields.filter(item => item.props.id !== key);
         this.setState({fields: filtered});
     }
