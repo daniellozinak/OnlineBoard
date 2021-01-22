@@ -405,30 +405,30 @@ class Board extends React.Component{
     change_size(in_size) {this.setState({thickness: in_size}); }
     change_mode(in_mode){this.setState({mode: in_mode});}
 
+    onDragOver = e =>{
+        e.preventDefault();
+    }
 
-    // math_field_visibility(show)
-    // {
-    //     if(show) {return;}
-    //     this.entities.push(this.new_entity);
-    //     this.emit_data();
-    //     if(this.stage !== null) {this.stage.batchDraw();}
-    //     this.setState({math_field: ""});
-    // }
-    
-    // get_latex(src)
-    // {
-    //     this.setState({math_field: src});
-    //     if(this.state.math_field === '' || this.state.math_field === Constants.MATH_COLOR || this.stage === null || this.state.math_field === null) {return;}
+    onDrop = e =>{
+        let x = e.clientX;
+        let y = e.clientY;
+        let position = {x: x, y:y};
+        let src = e.dataTransfer.getData("src");
+        let new_position = (this.stage === null)? position : Util.screen_to_world_point(this.stage,position);
 
-    //     let position = Util.get_math_position(this.stage);
-    //     console.log(position);
-    //     this.new_entity = new MField(Util.next_key(this.entities),[position.x, position.y],Constants.LATEX_TO_IMAGE + this.state.math_field);
-    // }
+        this.new_entity = new MField(Util.next_key(this.entities),[new_position.x,new_position.y],src);
+        this.entities = [this.new_entity,...this.entities];
+        this.emit_data();
+        this.new_entity = null;
+    }
 
     render(){
         const items = this.entities;
         return(
-            <div className="board" onContextMenu={(e)=> e.preventDefault()}>
+            <div className="board" 
+             onDrop={e=> this.onDrop(e,"complete")}
+             onDragOver={e=> this.onDragOver(e)}
+             onContextMenu={(e)=> e.preventDefault()}>
                 <div className="panel">
                     <Panel
                     color_callback={{color_callback: this.change_color.bind(this)}}

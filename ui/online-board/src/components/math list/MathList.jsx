@@ -118,7 +118,7 @@ class MathList extends React.Component{
                 <div className="list">
                     {this.state.fields.map((field,i)=>
                     {
-                        return <Suspense key={i} fallback={this.renderLoader()}>{field}</Suspense>
+                        return <Suspense key={i} fallback={this.renderLoader()}style={{marginHorizontal: 30}}>{field}</Suspense>
                     })}
                 </div>
             </Suspense>
