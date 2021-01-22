@@ -1,0 +1,11 @@
+.math-element{
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+    width: 0;
+    min-width: 100%;
+}
+
+.delete-button{
+    height: 70%;
+}

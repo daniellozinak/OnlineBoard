@@ -5,6 +5,7 @@ import { addStyles} from 'react-mathquill';
 
 const MathKeyBoard = lazy(()=> {return import('../math keyboard/MathKeyBoard')});
 const EditableMathField = lazy(()=> {return import('react-mathquill')})
+const MathElement = lazy(()=>{return import('../math element/MathElement')});
 
 addStyles();
 
@@ -23,8 +24,8 @@ var config = {
       return document.createElement('textarea');
     },
     handlers: {
-      edit: function(mathField) {  },
-      upOutOf: function(mathField) {  },
+      edit: function(mathField) {},
+      upOutOf: function(mathField) {},
     }
 };
 
@@ -58,12 +59,24 @@ class MathList extends React.Component{
         this.math_field.focus();
     }
 
+    delete(element)
+    {
+        if(typeof this.state.fields === 'undefined') {return;}
+        let key = element.props.id;
+        const filtered = this.state.fields.filter(item => item.props.id !== key);
+        this.setState({fields: filtered});
+    }
+
     add()
     {
         if(typeof this.state.current_latex === 'undefined') {return;}
-        //let new_node = <img src={}/>
+        if(this.state.current_latex === '') {return ;}
+
+        let new_key = Date.now();
+
         let src = Constants.LATEX_TO_IMAGE + this.state.current_latex + Constants.MATH_COLOR;
-        let new_element = <img src={src}/>;
+        let new_element = <MathElement  id={new_key} src={src} delete_callback={this.delete.bind(this)}/>
+
         this.setState((state)=>({fields: [new_element,...state.fields]}));
         this.math_field.latex("");
     }
@@ -103,9 +116,9 @@ class MathList extends React.Component{
                         config={config}
                 />
                 <div className="list">
-                    {this.state.fields.map((field)=>
+                    {this.state.fields.map((field,i)=>
                     {
-                        return <div className="math-container-item">{field}</div>
+                        return <Suspense key={i} fallback={this.renderLoader()}>{field}</Suspense>
                     })}
                 </div>
             </Suspense>

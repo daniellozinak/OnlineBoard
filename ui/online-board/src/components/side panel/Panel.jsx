@@ -6,7 +6,6 @@ import * as Constants from '../../util/constants.js';
 const ColorPicker = lazy(()=> {return import('../color picker/ColorPicker')});
 const SizePicker = lazy(()=> {return import('../size picker/SizePicker')});
 const ModePicker = lazy(()=> {return import('../mode picker/ModePicker')});
-const MathPicker = lazy(()=> {return import('../math picker/MathPicker')}); 
 
 class Panel extends React.Component{
 
