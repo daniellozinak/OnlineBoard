@@ -31,7 +31,7 @@ class Panel extends React.Component{
 
     render(){
         return(
-            <div>
+            <div className="panel">
                 <Suspense fallback={this.renderLoader()}>
                 Side
                 <div className="color-picker">

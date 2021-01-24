@@ -1,9 +1,10 @@
+
 .panel{
     position: absolute;
     z-index: 2;
     top: 5em;
     left: 2em;
-    height: 14em;
+    height: 12em;
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #f0f0f0;
@@ -36,11 +37,11 @@
 .panning{
     position: absolute;
     left:1.2em;
-    top:10em;
+    top:8em;
 }
 
 .select{
     position: absolute;
     left: 1.2em;
-    top: 12em
+    top: 10em
 }

@@ -433,13 +433,11 @@ class Board extends React.Component{
              onDrop={e=> this.onDrop(e,"complete")}
              onDragOver={e=> this.onDragOver(e)}
              onContextMenu={(e)=> e.preventDefault()}>
-                <div className="panel">
                     <Panel
                     color_callback={{color_callback: this.change_color.bind(this)}}
                     size_callback={{size_callback: this.change_size.bind(this)}}
                     mode_callback={{mode_callback: this.change_mode.bind(this)}}
                     />
-                </div>
                 <div className="select-panel">
                     <SelectPanel
                     data={this.state.select_panel_data}
