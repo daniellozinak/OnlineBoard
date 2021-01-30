@@ -1,10 +1,18 @@
 var app =   require('express')();
 var http =  require('http').createServer(app);
 var io =    require('socket.io')(http);
+var cors = require('cors');
+var board_router = require("./routes/board");
+
+app.use("/board",board_router);
+app.use(cors());
+
+
+
+//move to another folder
 
 current_content = [];
 current_pointer = 0;
-
 
 function filter_empty_array(array)
 {
@@ -57,6 +65,8 @@ io.on('connection', (socket)=>{
         current_content = filter_empty_array(current_content);
     })
 })
+
+//move to another folder
 
 var server_port = process.env.YOUR_PORT || process.env.PORT || 5000;
 http.listen(server_port, ()=>{
