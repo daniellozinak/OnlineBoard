@@ -1,0 +1,6 @@
+.invite{
+    position: absolute;
+    left: 2em;
+    top: 1em;
+    z-index: 2;
+}

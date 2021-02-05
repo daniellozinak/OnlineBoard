@@ -1,4 +1,4 @@
-import React,{Suspense} from 'react';
+import React,{lazy,Suspense} from 'react';
 import {Stage,Layer} from 'react-konva';
 import io from 'socket.io-client'
 import * as Constants from '../../util/constants.js';
@@ -14,9 +14,11 @@ import {MField} from '../../shapes/MField.js';
 import {Selector} from '../../shapes/Selector.js';
 
 
-import SelectPanel from '../select panel/SelectPanel';
-import Panel from '../side panel/Panel';
-import MathList from '../math list/MathList'
+const SelectPanel = lazy(()=> {return import('../select panel/SelectPanel')});
+const Panel = lazy(()=> {return import('../side panel/Panel')});
+const MathList = lazy(()=> {return import('../math list/MathList')});
+const Invite = lazy(()=> {return import('../invite/Invite')});
+
 
 
 class Board extends React.Component{
@@ -35,7 +37,7 @@ class Board extends React.Component{
 
     initial_click_position = null;
 
-    socket = io.connect(Constants.LOCAL_SERVER);
+    socket = null;
 
     constructor(props)
     {
@@ -61,6 +63,8 @@ class Board extends React.Component{
 
     componentDidMount()
     {
+        this.socket = io.connect(Constants.LOCAL_SERVER);
+
         this.socket.on(Constants.INITIAL_CANVAS_DATA,(data) => {
             if(this.entities.length > 0) {return;}
             for(var i in data.content)
@@ -85,6 +89,24 @@ class Board extends React.Component{
         this.socket.on(Constants.CANVAS_DATA_MOVE,(data)=>{
             this.entities = Util.move_entity(data.key,data.points,this.entities);
             //TODO: update selector (ak ma prijimatel selctor, neposunie sa s entitami)
+        })
+        
+        //TODO: add constant
+        this.socket.on("new-user",function(data){
+            console.log(data);
+        })
+
+        this.socket.on('redirect',function(data){
+            window.location.href = data;
+        })
+
+        this.socket.on('created-room',(data) =>{
+            this.props.redirect_callback(data);
+        })
+
+        this.socket.on('already-in-room',function()
+        {
+            console.log('Already in room');
         })
     }
 
@@ -426,6 +448,12 @@ class Board extends React.Component{
         this.mathlistRef.current.delete(data.id);
     }
 
+    create_room()
+    {
+        //console.log("new room");
+        this.socket.emit('new-room',null);
+    }
+
     render(){
         const items = this.entities;
         return(
@@ -433,6 +461,8 @@ class Board extends React.Component{
              onDrop={e=> this.onDrop(e,"complete")}
              onDragOver={e=> this.onDragOver(e)}
              onContextMenu={(e)=> e.preventDefault()}>
+                    <Invite 
+                        create_callback={{create_callback: this.create_room.bind(this)}}/>
                     <Panel
                     color_callback={{color_callback: this.change_color.bind(this)}}
                     size_callback={{size_callback: this.change_size.bind(this)}}
@@ -450,7 +480,7 @@ class Board extends React.Component{
                 </div>
                 
                 <Stage className="board-stage"
-                width={window.innerWidth} height={window.innerHeight}
+                width={window.innerWidth} height={window.innerHeight -65}
                 onMouseDown ={this._onMouseDown.bind(this)}
                 onMouseUp   ={this._onMouseUp.bind(this)}
                 onMouseMove ={this._onMouseMove.bind(this)}
