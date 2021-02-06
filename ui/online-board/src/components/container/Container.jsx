@@ -37,7 +37,7 @@ class Container extends React.Component{
     render()
     {
         return(
-            <div className="container">{this.props.children}
+            <div className="container-fluid">{this.props.children}
                 <Suspense fallback={this.renderLoader()}>
                         <TopBar/>
                         <Switch>

@@ -43,6 +43,7 @@ class Board extends React.Component{
     {
         super(props);
         this.state = {
+            joined: false,
             invite_link: '',
             mouse_x: 0,
             mouse_y: 0,
@@ -114,6 +115,11 @@ class Board extends React.Component{
 
         this.socket.on('invalid-room',function(room){
             console.log(room + ' is not a valid room');
+        })
+
+        this.socket.on('joined',(room)=>{
+            console.log("joined " + room);
+            this.setState({joined: true});
         })
     }
 
@@ -456,7 +462,8 @@ class Board extends React.Component{
     }
 
     create_room(){ this.socket.emit('new-room',null); }
-    join = function  join_room(room) { this.socket.emit('join-room',room);} 
+
+    join = function join_room(room) { this.socket.emit('join-room',room);} 
 
     render(){
         const items = this.entities;
@@ -465,7 +472,8 @@ class Board extends React.Component{
              onDrop={e=> this.onDrop(e,"complete")}
              onDragOver={e=> this.onDragOver(e)}
              onContextMenu={(e)=> e.preventDefault()}>
-                    <Invite 
+                    <Invite
+                        joined={this.state.joined} 
                         link={this.state.invite_link}
                         create_callback={{create_callback: this.create_room.bind(this)}}/>
                     <Panel

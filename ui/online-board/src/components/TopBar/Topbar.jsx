@@ -20,14 +20,6 @@ class TopBar extends React.Component{
                         <button>HOME</button>
                     </Link>
                 </div>
-                <div className="authentication">
-                    <Link className="login-button" to='/login'>
-                        <button>LOGIN</button>
-                    </Link>
-                    <Link className="register-button" to='/register'>
-                        <button>REGISTER</button>
-                    </Link>
-                </div>
             </div>
         )
     }

@@ -47,7 +47,6 @@ module.exports = (io) =>{
         })
 
         socket.on('join-room',(room)=>{
-            console.log('join-room event');
             room = room.replace('/draw/','');
             if(room === '' || room === '/draw') {return;}
 
@@ -67,6 +66,7 @@ module.exports = (io) =>{
             container.addSocket(socket);
 
             socket.join(room);
+            socket.emit('joined',room);
             socket.to(room).emit('new-user',socket.id);
             console.log(socket.id + " joined " + room);
         })
