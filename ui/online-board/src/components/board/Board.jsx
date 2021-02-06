@@ -43,6 +43,7 @@ class Board extends React.Component{
     {
         super(props);
         this.state = {
+            invite_link: '',
             mouse_x: 0,
             mouse_y: 0,
             last_mouse_x: 0,
@@ -93,7 +94,7 @@ class Board extends React.Component{
         
         //TODO: add constant
         this.socket.on("new-user",function(data){
-            console.log(data);
+            console.log('new user ' + data);
         })
 
         this.socket.on('redirect',function(data){
@@ -101,12 +102,18 @@ class Board extends React.Component{
         })
 
         this.socket.on('created-room',(data) =>{
-            this.props.redirect_callback(data);
+            let link = Constants.LOCAL_SERVER_REACT + "/draw/" + data;
+            this.setState({invite_link: link});
+            console.log(link);
         })
 
         this.socket.on('already-in-room',function()
         {
             console.log('Already in room');
+        })
+
+        this.socket.on('invalid-room',function(room){
+            console.log(room + ' is not a valid room');
         })
     }
 
@@ -448,11 +455,8 @@ class Board extends React.Component{
         this.mathlistRef.current.delete(data.id);
     }
 
-    create_room()
-    {
-        //console.log("new room");
-        this.socket.emit('new-room',null);
-    }
+    create_room(){ this.socket.emit('new-room',null); }
+    join = function  join_room(room) { this.socket.emit('join-room',room);} 
 
     render(){
         const items = this.entities;
@@ -462,6 +466,7 @@ class Board extends React.Component{
              onDragOver={e=> this.onDragOver(e)}
              onContextMenu={(e)=> e.preventDefault()}>
                     <Invite 
+                        link={this.state.invite_link}
                         create_callback={{create_callback: this.create_room.bind(this)}}/>
                     <Panel
                     color_callback={{color_callback: this.change_color.bind(this)}}

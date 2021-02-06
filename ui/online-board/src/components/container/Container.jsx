@@ -13,20 +13,20 @@ class Container extends React.Component{
     constructor(props)
     {
         super(props);
+        this.boardRef = React.createRef();
     }
 
     componentDidMount()
     {
-        this.props.history.listen((location, action) => {
-            console.log(location.pathname);
-        });
-        //setInterval(()=>{console.log(this.props.history)},1000);
+
     }
 
-    redirect(path)
-    {
-        console.log('redirecting to /draw/' + path);
-        this.props.history.push('/draw/' + path);
+    onRefChange = r =>{
+        if(r) 
+        {
+            r.join(this.props.history.location.pathname);
+            //this.props.history.push('/draw');
+        }
     }
 
     renderLoader()
@@ -41,7 +41,7 @@ class Container extends React.Component{
                 <Suspense fallback={this.renderLoader()}>
                         <TopBar/>
                         <Switch>
-                            <Route path='/draw' component={() => {return <Board redirect_callback={this.redirect.bind(this)}/>}}/>
+                            <Route path='/draw' component={() => {return <Board ref={this.onRefChange} />}}/>
                             <Route path='/login' exact component={Login}/>
                             <Route path='/register' exact component={Register}/>
                             <Route path='/' exact component={Home}/>

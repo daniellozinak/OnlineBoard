@@ -9,31 +9,66 @@ var container = socket_model.socket_container;
 module.exports = (io) =>{
     io.on('connection',function(socket){
         socket.on('new-room',() =>{
+
+            //check if socket already exists
             if(container.isInContainer(socket,container.sockets))
             {
                 console.log(socket.id + " is already in room");
                 socket.emit('already-in-room',null);
+                return;
             }
             
+            //add socket to container
             container.addSocket(socket);
 
+            //generate new room
             let crypto = require('crypto');
             let new_room = crypto.randomBytes(20).toString('hex');
+
+            //add room to room container
             rooms = [...rooms,new_room];
 
-            // console.log(socket.id);
+            //join the new room
             socket.join(new_room);
     
-            // // var roster = io.sockets.adapter.rooms[new_room];
-            // // console.log(roster);
-    
-            socket.to(new_room).emit("user joined test room: ",socket.id);
+            //socket.to(new_room).emit("user joined test room: ",socket.id);
+
+            //emit message back to client
             socket.emit('created-room',new_room);
-            console.log(socket.id);
+
+            //log
+            console.log('new room created: ' + new_room);
+            console.log('room list');
+            console.log(rooms);
         })
 
         socket.on('leave-room',()=>{
 
+        })
+
+        socket.on('join-room',(room)=>{
+            console.log('join-room event');
+            room = room.replace('/draw/','');
+            if(room === '' || room === '/draw') {return;}
+
+            if(!util.is_room(rooms,room))
+            {
+                socket.emit('invalid-room',room);
+                return;
+            }
+
+            if(container.isInContainer(socket,container.sockets))
+            {
+                console.log(socket.id + " is already in room");
+                socket.emit('already-in-room',null);
+                return;
+            }
+
+            container.addSocket(socket);
+
+            socket.join(room);
+            socket.to(room).emit('new-user',socket.id);
+            console.log(socket.id + " joined " + room);
         })
     })
 }

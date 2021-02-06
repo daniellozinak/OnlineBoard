@@ -9,6 +9,7 @@ class Invite extends React.Component{
         this.state = {
             show: false
         }
+
     }
 
     invite()
@@ -21,7 +22,9 @@ class Invite extends React.Component{
         return(
             <div className="invite">
                 <button className="invite-button" onClick={this.invite.bind(this)}> INVITE</button>
-                {this.state.show && <div className="link"> inv link</div>}
+                <div className="link">
+                    <p>{this.props.link}</p>
+                </div>
             </div>
         )
     }
