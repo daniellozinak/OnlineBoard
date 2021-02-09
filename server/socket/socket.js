@@ -1,15 +1,13 @@
 var rooms = [];
-var client_model = require('../model/client');
-const socket_container = require('../model/socket_container');
 var socket_model = require('../model/socket_container');
 var util = require('../util/util');
+var room_model = require('../model/room');
 
 var container = socket_model.socket_container;
 
 module.exports = (io) =>{
     io.on('connection',function(socket){
-        socket.on('new-room',() =>{
-
+        socket.on('new-room',(data) =>{
             //check if socket already exists
             if(container.isInContainer(socket,container.sockets))
             {
@@ -23,36 +21,52 @@ module.exports = (io) =>{
 
             //generate new room
             let crypto = require('crypto');
-            let new_room = crypto.randomBytes(20).toString('hex');
+            // let new_room = crypto.randomBytes(20).toString('hex');
+            let new_room = room_model.create_room(crypto.randomBytes(20).toString('hex'));
+
+            new_room.content = data.content;
+            new_room.pointer = data.pointer;
+            
 
             //add room to room container
             rooms = [...rooms,new_room];
 
             //join the new room
-            socket.join(new_room);
-    
-            //socket.to(new_room).emit("user joined test room: ",socket.id);
+            socket.join(new_room.id);
 
             //emit message back to client
-            socket.emit('created-room',new_room);
+            socket.emit('created-room',new_room.id);
 
             //log
-            console.log('new room created: ' + new_room);
-            console.log('room list');
-            console.log(rooms);
+            // console.log('new room created: ' + new_room);
+            // console.log('room list');
+            // console.log(rooms);
         })
 
         socket.on('leave-room',()=>{
-
+            //find room
+            //socket.leave(room)
         })
 
-        socket.on('join-room',(room)=>{
-            room = room.replace('/draw/','');
-            if(room === '' || room === '/draw') {return;}
-
-            if(!util.is_room(rooms,room))
+        socket.on('canvas-data', (data)=>{
+            let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
+            if(client_room === null) 
             {
-                socket.emit('invalid-room',room);
+                console.log('user not in a room');
+                return;
+            }
+            
+            client_room.pointer ++;
+            socket.to(client_room.id).emit('canvas-data',data);
+        })
+
+        socket.on('join-room',(room_id)=>{
+            room_id = room_id.replace('/draw/','');
+            if(room_id === '' || room_id === '/draw') {return;}
+
+            if(!util.is_room(rooms,room_id))
+            {
+                socket.emit('invalid-room',room_id);
                 return;
             }
 
@@ -65,10 +79,56 @@ module.exports = (io) =>{
 
             container.addSocket(socket);
 
-            socket.join(room);
-            socket.emit('joined',room);
-            socket.to(room).emit('new-user',socket.id);
-            console.log(socket.id + " joined " + room);
+            socket.join(room_id);
+
+            let room = util.find_room_by_id(rooms,room_id);
+
+            socket.emit('joined',{room_id: room.id,content: room.content, pointer: room.pointer});
+            socket.to(room_id).emit('new-user',socket.id);
+            console.log(socket.id + " joined " + room_id);
+        })
+
+        socket.on('canvas-data-move',(data)=>{
+            let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
+            if(client_room === null) 
+            {
+                console.log('user not in a room');
+                return;
+            }
+
+            console.log("current room");
+            console.log(client_room);
+
+            util.move_content(client_room.content,data);
+            socket.to(client_room.id).emit('canvas-data-move',data);
+        })
+
+        socket.on('canvas-data-delete',(data)=>{
+            let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
+            if(client_room === null) 
+            {
+                console.log('user not in a room');
+                return;
+            }
+
+            console.log("current room");
+            console.log(client_room);
+
+            delete client_room.content[data];
+            client_room.pointer --;
+            socket.to(client_room.id).emit('canvas-data-delete',data);
+        })
+
+        socket.on('canvas-data-filter',(data)=>{
+            let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
+            if(client_room === null) 
+            {
+                console.log('user not in a room');
+                return;
+            }
+
+            client_room.content = util.filter_content(client_room.content);
+            socket.to(client_room.id).emit('canvas-data-filter',data);
         })
     })
 }

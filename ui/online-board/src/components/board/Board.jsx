@@ -67,12 +67,16 @@ class Board extends React.Component{
     {
         this.socket = io.connect(Constants.LOCAL_SERVER);
 
-        this.socket.on(Constants.INITIAL_CANVAS_DATA,(data) => {
-            if(this.entities.length > 0) {return;}
-            for(var i in data.content)
+        this.socket.on(Constants.JOINED_ROOM,(room)=>{
+            for(var i in room.content)
             {
-                this.entities.push(Util.retrieve_object(data.content[i]));
+                this.entities.push(Util.retrieve_object(room.content[i]));
             }
+
+            this.current_position = room.pointer;
+
+            console.log(room);
+            this.setState({joined: true});
         })
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
@@ -80,10 +84,12 @@ class Board extends React.Component{
             this.entities.push(new_data);
         })
 
+        //TODO
         this.socket.on(Constants.CANVAS_DATA_DELETE,(data) =>{
           this.delete_entity(data);
         })
 
+        //TODO
         this.socket.on(Constants.CANVAS_DATA_FILTER,(data) =>{
             this.filter();
         })
@@ -110,16 +116,13 @@ class Board extends React.Component{
 
         this.socket.on('already-in-room',function()
         {
+            //notification
             console.log('Already in room');
         })
 
         this.socket.on('invalid-room',function(room){
+            //throw an error page
             console.log(room + ' is not a valid room');
-        })
-
-        this.socket.on('joined',(room)=>{
-            console.log("joined " + room);
-            this.setState({joined: true});
         })
     }
 
@@ -391,7 +394,7 @@ class Board extends React.Component{
         if(entity.selected) //if entity is selected
         {
           this.delete_entity(i); //delete locally
-
+            
           this.socket.emit(Constants.CANVAS_DATA_DELETE,i); //emit
         }
 
@@ -461,7 +464,7 @@ class Board extends React.Component{
         this.mathlistRef.current.delete(data.id);
     }
 
-    create_room(){ this.socket.emit('new-room',null); }
+    create_room(){ this.socket.emit('new-room',{content: this.entities,pointer: this.current_position}); }
 
     join = function join_room(room) { this.socket.emit('join-room',room);} 
 

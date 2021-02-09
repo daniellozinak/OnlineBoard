@@ -56,31 +56,31 @@ http.listen(server_port, ()=>{
 //     users = [...users,new_user];
 
 
-//     // users.forEach(element => {
-//     //   console.log(element);
-//     // });
+    // users.forEach(element => {
+    //   console.log(element);
+    // });
 
-//     // socket.emit('canvas-data-initial',{content: current_content,pointer: current_pointer});
+    // socket.emit('canvas-data-initial',{content: current_content,pointer: current_pointer});
 
-//     // socket.on('canvas-data', (data)=>{
-//     //     socket.to(new_room).emit('canvas-data',data);
-//     // })
+    // socket.on('canvas-data', (data)=>{
+    //     socket.to(new_room).emit('canvas-data',data);
+    // })
 
-//     // socket.on('canvas-data-delete',(data)=>{
-//     //   delete current_content[data];
-//     //   current_pointer--;
-//     //   socket.broadcast.emit('canvas-data-delete',data);
-//     // })
+    // socket.on('canvas-data-delete',(data)=>{
+    //   delete current_content[data];
+    //   current_pointer--;
+    //   socket.broadcast.emit('canvas-data-delete',data);
+    // })
 
-//     // socket.on('canvas-data-move',(data)=>{
-//     //   move_content(data);
-//     //   socket.broadcast.emit('canvas-data-move',data);
-//     // })
+    // socket.on('canvas-data-move',(data)=>{
+    //   move_content(data);
+    //   socket.broadcast.emit('canvas-data-move',data);
+    // })
 
-//     // socket.on('canvas-data-filter',(data)=>{
-//     //     socket.broadcast.emit('canvas-data-filter',data);
-//     //     current_content = filter_empty_array(current_content);
-//     // })
+    // socket.on('canvas-data-filter',(data)=>{
+    //     socket.broadcast.emit('canvas-data-filter',data);
+    //     current_content = filter_empty_array(current_content);
+    // })
 
 //     socket.on('new-room',() =>{
 //       try{
