@@ -18,6 +18,7 @@ const SelectPanel = lazy(()=> {return import('../select panel/SelectPanel')});
 const Panel = lazy(()=> {return import('../side panel/Panel')});
 const MathList = lazy(()=> {return import('../math list/MathList')});
 const Invite = lazy(()=> {return import('../invite/Invite')});
+const Save = lazy(()=> {return import('../save/Save')});
 
 
 
@@ -67,6 +68,7 @@ class Board extends React.Component{
     {
         this.socket = io.connect(Constants.LOCAL_SERVER);
 
+        //move to another folder
         this.socket.on(Constants.JOINED_ROOM,(room)=>{
             for(var i in room.content)
             {
@@ -84,12 +86,10 @@ class Board extends React.Component{
             this.entities.push(new_data);
         })
 
-        //TODO
         this.socket.on(Constants.CANVAS_DATA_DELETE,(data) =>{
           this.delete_entity(data);
         })
 
-        //TODO
         this.socket.on(Constants.CANVAS_DATA_FILTER,(data) =>{
             this.filter();
         })
@@ -125,7 +125,6 @@ class Board extends React.Component{
             console.log(room + ' is not a valid room');
         })
     }
-
 
     _onMouseDown = e =>{
         this.stage = e.currentTarget;
@@ -327,6 +326,26 @@ class Board extends React.Component{
         this.update_select_panel(this.stage);
     }
 
+    _onDragOver = e =>{
+        e.preventDefault();
+    }
+
+    _onDrop = e =>{
+        let x = e.clientX;
+        let y = e.clientY;
+        let position = {x: x, y:y};
+        let data = JSON.parse(e.dataTransfer.getData("element"));
+        let new_position = (this.stage === null)? position : Util.screen_to_world_point(this.stage,position);
+
+        this.new_entity = new MField(Util.next_key(this.entities),[new_position.x,new_position.y],data.src);
+        this.entities = [this.new_entity,...this.entities];
+        this.emit_data();
+        this.new_entity = null;
+
+        this.mathlistRef.current.delete(data.id);
+    }
+
+
     update_select_panel(stage)
     {
       if(!Util.is_there_selector(this.entities)) {return;}
@@ -444,27 +463,19 @@ class Board extends React.Component{
     change_color(in_color){this.setState({color: in_color}); }
     change_size(in_size) {this.setState({thickness: in_size}); }
     change_mode(in_mode){this.setState({mode: in_mode});}
-
-    onDragOver = e =>{
-        e.preventDefault();
-    }
-
-    onDrop = e =>{
-        let x = e.clientX;
-        let y = e.clientY;
-        let position = {x: x, y:y};
-        let data = JSON.parse(e.dataTransfer.getData("element"));
-        let new_position = (this.stage === null)? position : Util.screen_to_world_point(this.stage,position);
-
-        this.new_entity = new MField(Util.next_key(this.entities),[new_position.x,new_position.y],data.src);
-        this.entities = [this.new_entity,...this.entities];
-        this.emit_data();
-        this.new_entity = null;
-
-        this.mathlistRef.current.delete(data.id);
-    }
-
     create_room(){ this.socket.emit('new-room',{content: this.entities,pointer: this.current_position}); }
+    load_entities(data){
+        try{
+            for(var i in data){
+                this.entities.push(Util.retrieve_object(data[i]));
+            }
+            this.current_position = this.entities.length - 1;
+
+        }catch(e)
+        {
+            console.log(e);
+        }
+    }
 
     join = function join_room(room) { this.socket.emit('join-room',room);} 
 
@@ -472,8 +483,8 @@ class Board extends React.Component{
         const items = this.entities;
         return(
             <div className="board" 
-             onDrop={e=> this.onDrop(e,"complete")}
-             onDragOver={e=> this.onDragOver(e)}
+             onDrop={e=> this._onDrop(e,"complete")}
+             onDragOver={e=> this._onDragOver(e)}
              onContextMenu={(e)=> e.preventDefault()}>
                     <Invite
                         joined={this.state.joined} 
@@ -493,6 +504,10 @@ class Board extends React.Component{
                 </div>
                 <div className="math-list-container">
                     <MathList ref={this.mathlistRef}/>
+                </div>
+                <div className='save-container'>
+                    <Save board={this.entities}
+                        load_callback={{load: this.load_entities.bind(this)}}/>
                 </div>
                 
                 <Stage className="board-stage"

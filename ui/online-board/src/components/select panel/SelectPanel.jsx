@@ -1,7 +1,6 @@
 import React from 'react';
 import './style.css';
 
-
 class SelectPanel extends React.Component{
   constructor(props)
   {

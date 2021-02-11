@@ -1,6 +1,7 @@
-import React from 'react';
+import React,{lazy} from 'react';
 import {Link} from 'react-router-dom';
 import './style.css';
+import {Navbar,Button} from 'react-bootstrap';
 
 
 class TopBar extends React.Component{
@@ -11,16 +12,16 @@ class TopBar extends React.Component{
 
     render(){
         return(
-            <div className="top-bar">
+            <Navbar bg="dark" className="top-bar">
                 <div className="draw">
                     <Link className="draw-button" to='/draw'>
-                        <button>DRAW</button>
+                        <Button variant="success">DRAW</Button>
                     </Link>
                     <Link className="home-button" to='/'>
-                        <button>HOME</button>
+                        <Button variant="secondary">HOME</Button>
                     </Link>
                 </div>
-            </div>
+            </Navbar>
         )
     }
 }

@@ -1,6 +1,7 @@
 import React,{lazy,Suspense} from 'react';
 import './style.css';
 import * as Constants from '../../util/constants.js';
+import {Card} from 'react-bootstrap';
 
 
 const ColorPicker = lazy(()=> {return import('../color picker/ColorPicker')});
@@ -31,9 +32,9 @@ class Panel extends React.Component{
 
     render(){
         return(
-            <div className="panel">
+            <Card bg="dark" text="white" style={{width: '5rem', height: '13rem'}} className="panel">
+                Side Panel
                 <Suspense fallback={this.renderLoader()}>
-                Side
                 <div className="color-picker">
                         <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
                     </div>
@@ -50,9 +51,34 @@ class Panel extends React.Component{
                         <button onClick={this.set_select.bind(this)}>Slct</button>
                 </div>
                 </Suspense>
-            </div>
+            </Card>
         )
     }
 }
 
 export default Panel;
+
+// render(){
+//     return(
+//         <div className="panel">
+//             <Suspense fallback={this.renderLoader()}>
+//             Side
+//             <div className="color-picker">
+//                     <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
+//                 </div>
+//                 <div className="size-picker">
+//                     <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
+//                 </div>
+//                 <div className="mode-picker">
+//                     <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}/>
+//                 </div>
+//                 <div className="panning">
+//                     <button onClick={this.set_pan.bind(this)}>Pan</button>
+//                 </div>
+//                 <div className="select">
+//                     <button onClick={this.set_select.bind(this)}>Slct</button>
+//             </div>
+//             </Suspense>
+//         </div>
+//     )
+// }

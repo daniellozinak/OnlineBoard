@@ -24,6 +24,7 @@ class Invite extends React.Component{
     handleClose()
     {
         this.setState({show:false})
+        this.setState({copied: false});
     }
 
 

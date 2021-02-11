@@ -1,0 +1,19 @@
+.save{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.dragdrop{
+    border: 1px solid #ddd;
+    height: 5em;
+    width: 50%;
+    text-align: center;
+    vertical-align: middle; 
+
+}
+
+.body{
+    display: flex;
+    flex-direction: row;
+}

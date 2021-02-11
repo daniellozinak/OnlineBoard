@@ -88,7 +88,7 @@ class MathList extends React.Component{
 
     update(text)
     {
-        this.math_field.latex(this.math_field.latex() + text);
+        this.math_field.write(text);
         this.setState({current_latex: this.math_field.latex()});
     }
 
