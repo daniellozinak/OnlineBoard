@@ -30,6 +30,15 @@ module.exports = {
         return null;
     },
 
+    remove_room: function(rooms,to_delete)
+    {
+        let index = rooms.indexOf(to_delete);
+        if(index > -1)
+        {
+            rooms.splice(index,1);
+        }
+    },
+
     move_content: function(current_content,data)
     {
         if(typeof data !== 'object') {return;}

@@ -3,7 +3,8 @@ module.exports={
         return{
             id:id,
             content: [],
-            pointer: 0
+            pointer: 0,
+            connected: 1 // when created, creator is already in the room
         }
     }
 }

@@ -68,7 +68,7 @@ class Board extends React.Component{
     {
         this.socket = io.connect(Constants.LOCAL_SERVER);
 
-        //move to another folder
+        // register socket events
         this.socket.on(Constants.JOINED_ROOM,(room)=>{
             for(var i in room.content)
             {
@@ -111,7 +111,7 @@ class Board extends React.Component{
         this.socket.on('created-room',(data) =>{
             let link = Constants.LOCAL_SERVER_REACT + "/draw/" + data;
             this.setState({invite_link: link});
-            console.log(link);
+            console.log('new room created: ' + link);
         })
 
         this.socket.on('already-in-room',function()
@@ -120,10 +120,20 @@ class Board extends React.Component{
             console.log('Already in room');
         })
 
-        this.socket.on('invalid-room',function(room){
+        this.socket.on('invalid-room',function(data){
             //throw an error page
-            console.log(room + ' is not a valid room');
+            console.log(data + ' is not a valid room');
         })
+
+        this.socket.on('left',function(data){
+            console.log(data + ' left');
+        })
+
+        window.addEventListener('beforeunload', (ev) => 
+        {  
+            this.socket.emit('leave-room',null);
+            this.socket.emit('disconnect',null);
+        });
     }
 
     _onMouseDown = e =>{

@@ -13,6 +13,7 @@ module.exports = {
           if (this.sockets[name] !== undefined) {
             this.sockets[name] = null;
             delete this.sockets[name];
+            console.log(name + ' deleted');
           }
         },
       

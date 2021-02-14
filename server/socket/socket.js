@@ -43,11 +43,6 @@ module.exports = (io) =>{
             // console.log(rooms);
         })
 
-        socket.on('leave-room',()=>{
-            //find room
-            //socket.leave(room)
-        })
-
         socket.on('canvas-data', (data)=>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
@@ -82,12 +77,41 @@ module.exports = (io) =>{
             socket.join(room_id);
 
             let room = util.find_room_by_id(rooms,room_id);
+            room.connected ++;
 
             socket.emit('joined',{room_id: room.id,content: room.content, pointer: room.pointer});
             socket.to(room_id).emit('new-user',socket.id);
             console.log(socket.id + " joined " + room_id);
         })
 
+        socket.on('leave-room',function(){
+            let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
+            if(client_room === null) {return;}
+
+            client_room.connected --;
+
+            if(client_room.connected === 0)
+            {
+                util.remove_room(rooms,client_room);
+            }
+            else{
+                console.log('someone left...');
+                socket.to(client_room).emit('left',socket.id);
+            }
+        })
+
+        socket.on('disconnect',function()
+        {
+            if(container.isInContainer(socket,container.sockets))
+            {
+                container.removeSocket(socket.id);
+            }
+            socket.disconnect();
+            console.log('disconnect');
+            console.log(container.sockets);
+        })
+
+        // content 
         socket.on('canvas-data-move',(data)=>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
