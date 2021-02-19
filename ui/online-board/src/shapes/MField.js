@@ -2,13 +2,14 @@ import { Drawable } from "./Drawable";
 import {Image} from 'react-konva';
 
 export class MField extends Drawable{
-    constructor(key,points,src)
+    constructor(key,points,src,scale)
     {
         super('Field',key,points);
         if(typeof src !== "string") {throw new Error("invalid arguments");}
         this.src = src;
         this.width = 0;
         this.height = 0;
+        this.scale = scale;
     }
 
     draw()
@@ -24,6 +25,7 @@ export class MField extends Drawable{
                 y={this.points[1]}
                 width={this.width}
                 height={this.height}
+                scale={this.scale}
                 image={temp_image}
             />
             )

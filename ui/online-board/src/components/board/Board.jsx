@@ -347,7 +347,8 @@ class Board extends React.Component{
         let data = JSON.parse(e.dataTransfer.getData("element"));
         let new_position = (this.stage === null)? position : Util.screen_to_world_point(this.stage,position);
 
-        this.new_entity = new MField(Util.next_key(this.entities),[new_position.x,new_position.y],data.src);
+        this.new_entity = new MField(Util.next_key(this.entities),
+        [new_position.x,new_position.y],data.src,{x: this.state.current_scale ** -1,y:this.state.current_scale ** -1});
         this.entities = [this.new_entity,...this.entities];
         this.emit_data();
         this.new_entity = null;

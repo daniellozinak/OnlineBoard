@@ -36,11 +36,6 @@ module.exports = (io) =>{
 
             //emit message back to client
             socket.emit('created-room',new_room.id);
-
-            //log
-            // console.log('new room created: ' + new_room);
-            // console.log('room list');
-            // console.log(rooms);
         })
 
         socket.on('canvas-data', (data)=>{

@@ -10,7 +10,8 @@ class Save extends React.Component{
         
         this.state={
             show: false,
-            loaded_file: null
+            loaded_file: null,
+            is_over: false,
         }
     }
 
@@ -33,6 +34,7 @@ class Save extends React.Component{
 
     _onDragOver(e)
     {
+        this.setState({is_over: true});
         e.stopPropagation();
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
@@ -40,6 +42,7 @@ class Save extends React.Component{
 
     _onDrop(e)
     {
+        this.setState({is_over: false});
         e.stopPropagation();
         e.preventDefault();
         const fileList = e.dataTransfer.files;
@@ -66,6 +69,11 @@ class Save extends React.Component{
 		}.bind(this))(file);
 		reader.readAsText(file);
     }
+
+    _onDragLeave(e)
+    {
+        this.setState({is_over: false});
+    }
     
 
     render(){
@@ -77,11 +85,18 @@ class Save extends React.Component{
                     <Modal.Header closeButton>Save or drag n' drop</Modal.Header>
                     <Modal.Body className="body">
                         <Button onClick={this.save.bind(this)}>Save</Button>
-                        <div className='dragdrop'
+                        {!this.state.is_over && <div className='dragdrop-off' 
                         onDrop={this._onDrop.bind(this)}
-                        onDragOver={this._onDragOver.bind(this)}>
+                        onDragOver={this._onDragOver.bind(this)}
+                        onDragLeave={this._onDragLeave.bind(this)}>
                             Drag n Drop 
-                        </div>
+                        </div>}
+                        {this.state.is_over && <div className='dragdrop-on' 
+                        onDrop={this._onDrop.bind(this)}
+                        onDragOver={this._onDragOver.bind(this)}
+                        onDragLeave={this._onDragLeave.bind(this)}>
+                            Drag n Drop 
+                        </div>}
                         <p>{this.state.loaded_file !== null ? 'loaded' : 'not loaded'}</p>
                     </Modal.Body>
                 </Modal>
