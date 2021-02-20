@@ -32,10 +32,10 @@ class Panel extends React.Component{
 
     render(){
         return(
-            <Card bg="dark" text="white" style={{width: '5rem', height: '13rem'}} className="panel">
+            <Card bg="dark" text="white" style={{width: '5rem', height: '15rem'}} className="panel">
                 Side Panel
-                <Suspense fallback={this.renderLoader()}>
-                <div className="color-picker">
+                <Suspense fallback={this.renderLoader()} className="panel-wrapper">
+                    <div className="color-picker">
                         <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
                     </div>
                     <div className="size-picker">
@@ -49,7 +49,10 @@ class Panel extends React.Component{
                     </div>
                     <div className="select">
                         <button onClick={this.set_select.bind(this)}>Slct</button>
-                </div>
+                    </div>
+                    <div className="text">
+                        <button onClick={()=>{this.change_mode(Constants.MODE.TEXT)}} >T</button>
+                    </div>
                 </Suspense>
             </Card>
         )

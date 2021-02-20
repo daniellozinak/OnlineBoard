@@ -3,6 +3,7 @@ import {MCircle} from '../shapes/MCircle.js';
 import {MRect} from '../shapes/MRect.js';
 import {MField} from '../shapes/MField.js';
 import * as MyMath from './math.js';
+import { MText } from '../shapes/MText.js';
 
 export function filter_empty_array(array)
 {
@@ -66,6 +67,8 @@ export function retrieve_object(data)
             return new MRect(data.key,data.points,data.color,data.thickness,data.width,data.height);
         case "Field":
             return new MField(data.key,data.points,data.src);
+        case "Text":
+            return new MText(data.key,data.points,data.font_size,data.text);
         default:
             return null;
     }

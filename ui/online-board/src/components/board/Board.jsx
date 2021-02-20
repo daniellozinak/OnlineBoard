@@ -12,6 +12,7 @@ import {MCircle} from '../../shapes/MCircle.js';
 import {MRect} from '../../shapes/MRect.js';
 import {MField} from '../../shapes/MField.js';
 import {Selector} from '../../shapes/Selector.js';
+import { MText } from '../../shapes/MText.js';
 
 
 const SelectPanel = lazy(()=> {return import('../select panel/SelectPanel')});
@@ -134,6 +135,9 @@ class Board extends React.Component{
             this.socket.emit('leave-room',null);
             this.socket.emit('disconnect',null);
         });
+
+        this.entities.push(new MText(0,[300,100],20,"Tvoja mamka"));
+        this.current_position = 1;
     }
 
     _onMouseDown = e =>{

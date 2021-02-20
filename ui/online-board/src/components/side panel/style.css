@@ -4,13 +4,8 @@
     z-index: 2;
     top: 5em;
     left: 2em;
-    display: list-item;
-}
 
-.panel-wrapper{
-    position: relative;
 }
-
 .color-picker{
    position: absolute;
    left:2em;
@@ -29,14 +24,20 @@
     top:6em;
 }
 
+.text{
+    position: absolute;
+    left: 1em;
+    top: 12em
+}
+
 .panning{
     position: absolute;
-    left:1.2em;
+    left:1em;
     top:8em;
 }
 
 .select{
     position: absolute;
-    left: 1.2em;
+    left: 1em;
     top: 10em
 }

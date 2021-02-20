@@ -1,5 +1,5 @@
 import { Drawable } from "./Drawable";
-import {Circle} from 'react-konva';
+import {Circle, Transformer} from 'react-konva';
 
 export class MCircle extends Drawable
 {
