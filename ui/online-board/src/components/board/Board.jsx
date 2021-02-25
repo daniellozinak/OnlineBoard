@@ -135,9 +135,6 @@ class Board extends React.Component{
             this.socket.emit('leave-room',null);
             this.socket.emit('disconnect',null);
         });
-
-        this.entities.push(new MText(0,[300,100],20,"Tvoja mamka"));
-        this.current_position = 1;
     }
 
     _onMouseDown = e =>{
@@ -153,10 +150,12 @@ class Board extends React.Component{
         this.mouse_down = true;
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
+            if(this.state.mode === Constants.MODE.TEXT){
+                this.entities.push(new MText(Util.next_key(this.entities),[this.state.mouse_x,this.state.mouse_y],20,"",this.state.current_scale**-1));
+                this.current_position ++;
+                this.state.mode = Constants.MODE.SELECT;
+            }
             this.is_drawing = true;
-            // import('../../util/math.js').then( (math) =>{
-            //     this.is_dragging = math.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
-            // })
             this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
             this.initial_click_position = Util.screen_to_world(this.stage);
             this.copied_entities = [];

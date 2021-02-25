@@ -3,7 +3,7 @@ import {Text} from 'react-konva';
 import React from 'react';
 
 export class MText extends Drawable{
-    constructor(key,points,font_size,text)
+    constructor(key,points,font_size,text,scale)
     {
         super('Text',key,points);
         this.font_size = font_size;
@@ -12,6 +12,7 @@ export class MText extends Drawable{
         this.height = 100;
         this.ref = React.createRef();
         this.edit = false;
+        this.create_edit();
     }
 
     draw()
@@ -26,27 +27,32 @@ export class MText extends Drawable{
                 ref={this.ref}
                 fill={'green'}
                 onDblClick={()=>{
-                    let node = this.ref.current;
-                    console.log(node.height());
-                    let position =node.getAbsolutePosition();
-                    this.edit = !this.edit;
-
-                    var edit_text = document.createElement('textarea');
-                    edit_text.value = node.getText();
-                    edit_text.style.position = 'absolute';
-                    edit_text.style.top = position.y + 'px';
-                    edit_text.style.left = position.x + 'px';
-                    edit_text.style.zIndex = 2;
-                    edit_text.focus();
-                    document.body.appendChild(edit_text);
-
-                    edit_text.addEventListener('focusout', () =>{
-                        this.text = edit_text.value;
-                        document.body.removeChild(edit_text);
-                    })
+                    this.create_edit();
                 }}
                 />
             )
+    }
+
+    create_edit(){
+        let node = this.ref.current;
+        let edit_text = document.createElement('textarea');
+        let position = {x: this.points[0], y: this.points[1]};
+        edit_text.value = "";
+        if(node !== null){
+            position = node.getAbsolutePosition();
+            edit_text.value = node.getText();
+        }
+        this.edit = !this.edit;
+        edit_text.style.position = 'absolute';
+        edit_text.style.top = position.y + 'px';
+        edit_text.style.left = position.x + 'px';
+        edit_text.style.zIndex = 2;
+        edit_text.focus();
+        document.body.appendChild(edit_text);
+        edit_text.addEventListener('focusout', () =>{
+            this.text = edit_text.value;
+            document.body.removeChild(edit_text);
+        })
     }
 
     get_offset() 
