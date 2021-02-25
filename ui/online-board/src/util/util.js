@@ -68,7 +68,7 @@ export function retrieve_object(data)
         case "Field":
             return new MField(data.key,data.points,data.src);
         case "Text":
-            return new MText(data.key,data.points,data.font_size,data.text);
+            return new MText(data.key,data.points,data.font_size,data.text,data.scale,true);
         default:
             return null;
     }
@@ -114,6 +114,8 @@ export function copy_entities(entities)
   if(!Array.isArray(entities)) {return null;}
   if(!is_there_selector(entities)) {return;}
 
+
+  console.log("copy");
   //empty array
   let copies = [];
   for(var i in entities)

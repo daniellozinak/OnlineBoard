@@ -3,7 +3,7 @@ import {Text} from 'react-konva';
 import React from 'react';
 
 export class MText extends Drawable{
-    constructor(key,points,font_size,text,scale)
+    constructor(key,points,font_size,text,scale,is_copy)
     {
         super('Text',key,points);
         this.font_size = font_size;
@@ -11,8 +11,14 @@ export class MText extends Drawable{
         this.width = 100;
         this.height = 100;
         this.ref = React.createRef();
+        this.scale = scale;
         this.edit = false;
-        this.create_edit();
+        this.edit_displayed = false;
+
+        if(!is_copy){
+            console.log("create edit called " + is_copy);
+            this.create_edit();
+        }
     }
 
     draw()
@@ -28,12 +34,14 @@ export class MText extends Drawable{
                 fill={'green'}
                 onDblClick={()=>{
                     this.create_edit();
+                    this.edit_displayed = true;
                 }}
                 />
             )
     }
 
     create_edit(){
+        if(this.edit_displayed) {return;}
         let node = this.ref.current;
         let edit_text = document.createElement('textarea');
         let position = {x: this.points[0], y: this.points[1]};
@@ -52,6 +60,7 @@ export class MText extends Drawable{
         edit_text.addEventListener('focusout', () =>{
             this.text = edit_text.value;
             document.body.removeChild(edit_text);
+            this.edit_displayed = false;
         })
     }
 
