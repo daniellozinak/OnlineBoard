@@ -344,11 +344,35 @@ class Board extends React.Component{
     }
 
     _onDrop = e =>{
+        e.preventDefault();
+        e.stopPropagation();
+
         let x = e.clientX;
         let y = e.clientY;
         let position = {x: x, y:y};
-        let data = JSON.parse(e.dataTransfer.getData("element"));
         let new_position = (this.stage === null)? position : Util.screen_to_world_point(this.stage,position);
+
+        let files = e.dataTransfer.files;
+
+        if(files.length > 0){
+            let file = files[0];
+            if(file.type !== "image/png"){
+                return;
+            }
+            let url = URL.createObjectURL(file);
+            let image = new window.Image();
+            image.src = url;
+
+            this.new_entity = new MField(Util.next_key(this.entities),
+            [new_position.x,new_position.y],url,{x: this.state.current_scale ** -1,y:this.state.current_scale ** -1},image);
+            this.entities = [this.new_entity,...this.entities];
+            this.emit_data();
+            this.new_entity = null;
+
+            return;
+        }
+        
+        let data = JSON.parse(e.dataTransfer.getData("element"));
 
         this.new_entity = new MField(Util.next_key(this.entities),
         [new_position.x,new_position.y],data.src,{x: this.state.current_scale ** -1,y:this.state.current_scale ** -1});

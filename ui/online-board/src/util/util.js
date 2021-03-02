@@ -114,8 +114,6 @@ export function copy_entities(entities)
   if(!Array.isArray(entities)) {return null;}
   if(!is_there_selector(entities)) {return;}
 
-
-  console.log("copy");
   //empty array
   let copies = [];
   for(var i in entities)

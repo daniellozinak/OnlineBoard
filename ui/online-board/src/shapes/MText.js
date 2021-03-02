@@ -16,7 +16,6 @@ export class MText extends Drawable{
         this.edit_displayed = false;
 
         if(!is_copy){
-            console.log("create edit called " + is_copy);
             this.create_edit();
         }
     }
