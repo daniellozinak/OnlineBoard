@@ -21,5 +21,6 @@ export const MODE = {
     MATH_FIELD: 'math-field',
     TEXT: 'text',
     SELECT: 'select',
-    PANNING: 'panning'
+    PANNING: 'panning',
+    NONE: 'none'
 }

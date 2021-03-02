@@ -31,6 +31,7 @@ export class MText extends Drawable{
                 fontSize={this.font_size}
                 ref={this.ref}
                 fill={'green'}
+                draggable={true}
                 onDblClick={()=>{
                     this.create_edit();
                     this.edit_displayed = true;

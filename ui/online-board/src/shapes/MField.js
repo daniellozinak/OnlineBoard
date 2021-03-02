@@ -32,6 +32,7 @@ export class MField extends Drawable{
                 height={this.height}
                 scale={this.scale}
                 image={temp_image}
+                draggable={true}
             />
             )
     }

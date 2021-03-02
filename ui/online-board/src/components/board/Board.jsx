@@ -153,7 +153,6 @@ class Board extends React.Component{
             if(this.state.mode === Constants.MODE.TEXT){
                 this.entities.push(new MText(Util.next_key(this.entities),[this.state.mouse_x,this.state.mouse_y],20,"",this.state.current_scale**-1,false));
                 this.current_position ++;
-                this.state.mode = Constants.MODE.SELECT;
             }
             this.is_drawing = true;
             this.is_dragging = MyMath.is_dragging({x: this.state.mouse_x, y: this.state.mouse_y},this.selector);
@@ -194,6 +193,9 @@ class Board extends React.Component{
 
         this.is_drawing = false;
         console.log(this.entities);
+        if(this.state.mode === Constants.MODE.TEXT){
+            this.no_mode();
+        }
     }
 
     _onMouseMove = e =>{
@@ -285,6 +287,8 @@ class Board extends React.Component{
                     }
                     
                     break;
+                case Constants.MODE.NONE:
+                    break;
                 default:
                      //if mode doesnt create new entity, set it to null
                     break;
@@ -344,6 +348,7 @@ class Board extends React.Component{
     }
 
     _onDrop = e =>{
+        this.no_mode();
         e.preventDefault();
         e.stopPropagation();
 
@@ -471,6 +476,10 @@ class Board extends React.Component{
     {
       this.copied_entities = Util.copy_entities(this.entities);
       this.remove_selector();
+    }
+
+    no_mode(){
+        this.setState({mode: Constants.MODE.NONE});
     }
 
     paste_selected(offset)
