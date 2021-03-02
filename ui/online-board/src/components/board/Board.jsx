@@ -151,7 +151,7 @@ class Board extends React.Component{
         if(e.evt.button === Constants.LEFT_BUTTON)
         {
             if(this.state.mode === Constants.MODE.TEXT){
-                this.entities.push(new MText(Util.next_key(this.entities),[this.state.mouse_x,this.state.mouse_y],20,"",this.state.current_scale**-1,false));
+                this.entities.push(new MText(Util.next_key(this.entities),[this.state.mouse_x,this.state.mouse_y],20,"",this.state.current_scale**-1,false,this.state.color));
                 this.current_position ++;
             }
             this.is_drawing = true;

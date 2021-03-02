@@ -3,7 +3,7 @@ import {Text} from 'react-konva';
 import React from 'react';
 
 export class MText extends Drawable{
-    constructor(key,points,font_size,text,scale,is_copy)
+    constructor(key,points,font_size,text,scale,is_copy,color='#000000')
     {
         super('Text',key,points);
         this.font_size = font_size;
@@ -14,6 +14,7 @@ export class MText extends Drawable{
         this.scale = scale;
         this.edit = false;
         this.edit_displayed = false;
+        this.color = color;
 
         if(!is_copy){
             this.create_edit();
@@ -30,7 +31,7 @@ export class MText extends Drawable{
                 text={this.text}
                 fontSize={this.font_size}
                 ref={this.ref}
-                fill={'green'}
+                fill={this.color}
                 draggable={true}
                 onDblClick={()=>{
                     this.create_edit();
