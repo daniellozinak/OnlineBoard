@@ -21,7 +21,7 @@ export class MText extends Drawable{
         }
     }
 
-    draw()
+    draw(callback=null)
     {
         return(
                 <Text

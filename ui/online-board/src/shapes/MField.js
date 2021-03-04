@@ -10,10 +10,12 @@ export class MField extends Drawable{
         this.width = 0;
         this.height = 0;
         this.scale = scale;
-        this.image = image
+        this.image = image;
+        this.can_drag = false;
+        this.stroke_width = 0;
     }
 
-    draw()
+    draw(callback=null)
     {
         var temp_image = new window.Image();
         temp_image.src = this.src;
@@ -22,7 +24,6 @@ export class MField extends Drawable{
         if(this.image) {
             temp_image = this.image;
         }
-        // console.log(temp_image)
         return(
                 <Image
                 key={this.key}
@@ -32,7 +33,18 @@ export class MField extends Drawable{
                 height={this.height}
                 scale={this.scale}
                 image={temp_image}
-                draggable={true}
+                draggable={this.can_drag}
+                stroke={'#006600'}
+                strokeWidth={this.stroke_width}
+                onDragEnd={(e)=>{
+                    if(callback!== null){
+                        callback(this.key,[e.target.attrs.x,e.target.attrs.y]);
+                    }
+                }}
+                onClick={(e)=>{
+                    this.can_drag = !this.can_drag;
+                    this.stroke_width = (this.can_drag)? 5 : 0;
+                }}
             />
             )
     }

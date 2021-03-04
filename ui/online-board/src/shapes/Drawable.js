@@ -10,11 +10,6 @@ export class Drawable{
         this.selected = false;
     }
 
-    draw(){}
-    self(){}
-    to_rect(){}
-
-
     notify(moved_by,socket)
     {
         if(typeof socket !== 'object' || socket === null) {return;}

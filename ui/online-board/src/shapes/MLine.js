@@ -15,7 +15,7 @@ export class MLine extends Drawable{
         return new MLine("Line",key,points,color,thickness);
     }
 
-    draw()
+    draw(callback=null)
     {
         return (
             <Line 

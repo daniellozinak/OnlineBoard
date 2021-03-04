@@ -12,7 +12,7 @@ export class MCircle extends Drawable
         this.radius = radius;
     }
 
-    draw()
+    draw(callback=null)
     {
         return (
             <Circle

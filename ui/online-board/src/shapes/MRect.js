@@ -16,7 +16,7 @@ export class MRect extends Drawable
         this.opacity = 1;
     }
 
-    draw()
+    draw(callback=null)
     {
         return (
             <Rect

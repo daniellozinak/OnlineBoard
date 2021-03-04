@@ -66,7 +66,7 @@ export function retrieve_object(data)
         case "Rect":
             return new MRect(data.key,data.points,data.color,data.thickness,data.width,data.height);
         case "Field":
-            return new MField(data.key,data.points,data.src);
+            return new MField(data.key,data.points,data.src,data.scale);
         case "Text":
             return new MText(data.key,data.points,data.font_size,data.text,data.scale,true);
         default:

@@ -426,6 +426,10 @@ class Board extends React.Component{
         }
     }
 
+    move_data_callback = (key,points) =>{
+        this.socket.emit(Constants.CANVAS_DATA_MOVE,{key: key,points: points});
+    }
+
     remove_selector()
     {
         if(typeof this.entities[this.entities.length - 1] === 'undefined' || this.entities[this.entities.length - 1] === null) {return;}
@@ -489,7 +493,6 @@ class Board extends React.Component{
         {
             let entity = Util.retrieve_object(Util.clone_object(this.copied_entities[i]));
             entity.key = Util.next_key(this.entities) + 1;
-
 
             //temporary
             for(var j in entity.points)
@@ -566,7 +569,7 @@ class Board extends React.Component{
                     <Layer>
                         {items.map((entity) =>
                         {
-                            if(entity instanceof Drawable){ return (entity.draw())}
+                            if(entity instanceof Drawable){ return (entity.draw(this.move_data_callback))}
                         })}
                     </Layer>
                 </Stage>
