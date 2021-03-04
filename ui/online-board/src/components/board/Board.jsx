@@ -361,7 +361,8 @@ class Board extends React.Component{
 
         if(files.length > 0){
             let file = files[0];
-            if(file.type !== "image/png"){
+            console.log(file.type);
+            if(file.type !== "image/png" && file.type !== "image/jpeg"){
                 return;
             }
             let url = URL.createObjectURL(file);
