@@ -50,6 +50,16 @@ module.exports = (io) =>{
             socket.to(client_room.id).emit('canvas-data',data);
         })
 
+        socket.on('canvas-text-edit', (data) => {
+            let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
+            if(client_room === null) 
+            {
+                console.log('user not in a room');
+                return;
+            }
+            socket.to(client_room.id).emit('canvas-text-edit',data);
+        })
+
         socket.on('join-room',(room_id)=>{
             room_id = room_id.replace('/draw/','');
             if(room_id === '' || room_id === '/draw') {return;}

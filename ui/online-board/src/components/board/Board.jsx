@@ -84,6 +84,8 @@ class Board extends React.Component{
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
             let new_data = Util.retrieve_object(data);
+            console.log("new data arrived!");
+            console.log(data);
             this.entities.push(new_data);
         })
 
@@ -91,13 +93,17 @@ class Board extends React.Component{
           this.delete_entity(data);
         })
 
-        this.socket.on(Constants.CANVAS_DATA_FILTER,(data) =>{
+        this.socket.on(Constants.CANVAS_DATA_FILTER,() =>{
             this.filter();
         })
 
         this.socket.on(Constants.CANVAS_DATA_MOVE,(data)=>{
             this.entities = Util.move_entity(data.key,data.points,this.entities);
             //TODO: update selector (ak ma prijimatel selctor, neposunie sa s entitami)
+        })
+
+        this.socket.on(Constants.CANVAS_TEXT_EDIT, (data) => {
+            this.entities = Util.edit_text(data.key,data.text,this.entities);
         })
         
         //TODO: add constant
@@ -192,7 +198,7 @@ class Board extends React.Component{
         this.emit_data();
 
         this.is_drawing = false;
-        console.log(this.entities);
+        console.log(this.entities[this.entities.length-1]);
         if(this.state.mode === Constants.MODE.TEXT){
             this.no_mode();
         }
@@ -423,12 +429,23 @@ class Board extends React.Component{
     {
         if(this.new_entity !== null && this.new_entity.key >=0)
         {
+            console.log("emitting data");
             this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
         }
     }
 
     move_data_callback = (key,points) =>{
         this.socket.emit(Constants.CANVAS_DATA_MOVE,{key: key,points: points});
+    }
+
+    edit_data_callback = (data) => {
+        this.socket.emit(Constants.CANVAS_TEXT_EDIT,data);
+    }
+
+    new_data_callback = (data) => {
+        this.new_entity = null;
+        this.socket.emit(Constants.CANVAS_DATA,data);
+        this.current_position ++;
     }
 
     remove_selector()
@@ -570,7 +587,12 @@ class Board extends React.Component{
                     <Layer>
                         {items.map((entity) =>
                         {
-                            if(entity instanceof Drawable){ return (entity.draw(this.move_data_callback))}
+                            if(entity instanceof Drawable){ 
+                                return (entity.draw(
+                                    {move: this.move_data_callback, 
+                                     edit: this.edit_data_callback,
+                                     create: this.new_data_callback}
+                                ))}
                         })}
                     </Layer>
                 </Stage>

@@ -5,6 +5,7 @@ export const LOCAL_SERVER_REACT = 'http://localhost:3000';
 export const CANVAS_DATA = 'canvas-data';
 export const CANVAS_DATA_DELETE = 'canvas-data-delete';
 export const CANVAS_DATA_FILTER = 'canvas-data-filter';
+export const CANVAS_TEXT_EDIT = 'canvas-text-edit';
 export const JOINED_ROOM = 'joined';
 export const CANVAS_DATA_MOVE = 'canvas-data-move';
 export const CANVAS_WIDTH = 5000;

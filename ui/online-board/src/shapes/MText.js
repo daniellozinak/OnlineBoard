@@ -15,14 +15,23 @@ export class MText extends Drawable{
         this.edit = false;
         this.edit_displayed = false;
         this.color = color;
+        this.newly_created = true;
+        this.is_copy = is_copy;
 
-        if(!is_copy){
-            this.create_edit();
+        if(!this.is_copy){
+            this.create_edit(null,false);
         }
     }
 
     draw(callback=null)
     {
+        if(this.newly_created && !this.is_copy){
+            console.log("newly created");
+            console.log(this.text);
+            this.newly_created = false;
+            callback.create(this);
+            this.create_edit(callback,true);
+        }
         return(
                 <Text
                 key={this.key}
@@ -34,14 +43,23 @@ export class MText extends Drawable{
                 fill={this.color}
                 draggable={true}
                 onDblClick={()=>{
-                    this.create_edit();
+                    this.create_edit(callback,false);
                     this.edit_displayed = true;
+                    
+                }}
+                onDragEnd={(e)=>{
+                    if(callback!== null){
+                        callback.move(this.key,[e.target.attrs.x,e.target.attrs.y]);
+                    }
+                }}
+                onClick={(e)=>{
+                  console.log(e);  
                 }}
                 />
             )
     }
 
-    create_edit(){
+    create_edit(callback,first_time){
         if(this.edit_displayed) {return;}
         let node = this.ref.current;
         let edit_text = document.createElement('textarea');
@@ -62,6 +80,10 @@ export class MText extends Drawable{
             this.text = edit_text.value;
             document.body.removeChild(edit_text);
             this.edit_displayed = false;
+
+            if(callback !== null){
+                callback.edit({key: this.key, text: this.text});
+            }
         })
     }
 

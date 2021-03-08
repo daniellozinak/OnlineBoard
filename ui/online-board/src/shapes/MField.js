@@ -38,7 +38,7 @@ export class MField extends Drawable{
                 strokeWidth={this.stroke_width}
                 onDragEnd={(e)=>{
                     if(callback!== null){
-                        callback(this.key,[e.target.attrs.x,e.target.attrs.y]);
+                        callback.move(this.key,[e.target.attrs.x,e.target.attrs.y]);
                     }
                 }}
                 onClick={(e)=>{
