@@ -14,6 +14,8 @@ import {MField} from '../../shapes/MField.js';
 import {Selector} from '../../shapes/Selector.js';
 import { MText } from '../../shapes/MText.js';
 
+import ImageTransformer from '../image transformer/ImageTransformer';
+
 
 const SelectPanel = lazy(()=> {return import('../select panel/SelectPanel')});
 const Panel = lazy(()=> {return import('../side panel/Panel')});
@@ -58,6 +60,7 @@ class Board extends React.Component{
             thickness: 10,
             mode: Constants.MODE.FREE_DRAW,
             math_field: null,
+            selected_entity : {konva_object: null, custom_object: null},
             select_panel_data: {is_selected: Util.is_there_selector(this.entities), x: 0, y:0},
         }
 
@@ -198,7 +201,7 @@ class Board extends React.Component{
         this.emit_data();
 
         this.is_drawing = false;
-        console.log(this.entities[this.entities.length-1]);
+        // console.log(this.entities[this.entities.length-1]);
         if(this.state.mode === Constants.MODE.TEXT){
             this.no_mode();
         }
@@ -395,6 +398,15 @@ class Board extends React.Component{
         this.mathlistRef.current.delete(data.id);
     }
 
+    _onStageClick(e){
+        let clickedOn = e.target;
+        if('className' in clickedOn.attrs)
+        {
+            console.log(this.state.selected_entity);
+            if(clickedOn.attrs.className === "board-stage") {this.setState({selected_entity: {konva_object: null, custom_object: null}})}
+        }
+    }
+
 
     update_select_panel(stage)
     {
@@ -446,6 +458,10 @@ class Board extends React.Component{
         this.new_entity = null;
         this.socket.emit(Constants.CANVAS_DATA,data);
         this.current_position ++;
+    }
+
+    select_image_callback = (data) => {
+        this.setState({selected_entity: data});
     }
 
     remove_selector()
@@ -583,7 +599,9 @@ class Board extends React.Component{
                 onMouseDown ={this._onMouseDown.bind(this)}
                 onMouseUp   ={this._onMouseUp.bind(this)}
                 onMouseMove ={this._onMouseMove.bind(this)}
-                onWheel     ={this._onWheel.bind(this)}>
+                onWheel     ={this._onWheel.bind(this)}
+                onClick     ={this._onStageClick.bind(this)}
+                >
                     <Layer>
                         {items.map((entity) =>
                         {
@@ -591,9 +609,11 @@ class Board extends React.Component{
                                 return (entity.draw(
                                     {move: this.move_data_callback, 
                                      edit: this.edit_data_callback,
-                                     create: this.new_data_callback}
+                                     create: this.new_data_callback,
+                                     select: this.select_image_callback}
                                 ))}
                         })}
+                        <ImageTransformer selected={this.state.selected_entity.konva_object}/>
                     </Layer>
                 </Stage>
             </div>)

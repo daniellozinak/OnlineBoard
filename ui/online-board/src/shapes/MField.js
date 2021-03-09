@@ -43,7 +43,7 @@ export class MField extends Drawable{
                 }}
                 onClick={(e)=>{
                     this.can_drag = !this.can_drag;
-                    this.stroke_width = (this.can_drag)? 5 : 0;
+                    callback.select({konva_object: e.target, custom_object: this}); 
                 }}
             />
             )

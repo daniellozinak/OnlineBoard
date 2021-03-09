@@ -19,7 +19,7 @@ export class MText extends Drawable{
         this.is_copy = is_copy;
 
         if(!this.is_copy){
-            this.create_edit(null,false);
+            this.create_edit(null);
         }
     }
 
@@ -28,7 +28,7 @@ export class MText extends Drawable{
         if(this.newly_created && !this.is_copy){
             this.newly_created = false;
             callback.create(this);
-            this.create_edit(callback,true);
+            this.create_edit(callback);
         }
         return(
                 <Text
@@ -41,7 +41,7 @@ export class MText extends Drawable{
                 fill={this.color}
                 draggable={true}
                 onDblClick={()=>{
-                    this.create_edit(callback,false);
+                    this.create_edit(callback);
                     this.edit_displayed = true;
                     
                 }}
@@ -51,13 +51,13 @@ export class MText extends Drawable{
                     }
                 }}
                 onClick={(e)=>{
-                  console.log(e);  
+                    callback.select({konva_object: e.target, custom_object: this}); 
                 }}
                 />
             )
     }
 
-    create_edit(callback,first_time){
+    create_edit(callback){
         if(this.edit_displayed) {return;}
         let node = this.ref.current;
         let edit_text = document.createElement('textarea');
