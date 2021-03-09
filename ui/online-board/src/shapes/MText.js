@@ -26,8 +26,6 @@ export class MText extends Drawable{
     draw(callback=null)
     {
         if(this.newly_created && !this.is_copy){
-            console.log("newly created");
-            console.log(this.text);
             this.newly_created = false;
             callback.create(this);
             this.create_edit(callback,true);
@@ -63,6 +61,7 @@ export class MText extends Drawable{
         if(this.edit_displayed) {return;}
         let node = this.ref.current;
         let edit_text = document.createElement('textarea');
+        edit_text.id = 'temp-edit-node';
         let position = {x: this.points[0], y: this.points[1]};
         edit_text.value = "";
         if(node !== null){
@@ -84,6 +83,9 @@ export class MText extends Drawable{
             if(callback !== null){
                 callback.edit({key: this.key, text: this.text});
             }
+            
+            let edit_node = document.getElementById('temp-edit-node');
+            if(edit_node !== null) {document.body.removeChild(edit_node);}
         })
     }
 
