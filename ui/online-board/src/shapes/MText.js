@@ -10,13 +10,16 @@ export class MText extends Drawable{
         this.text = text;
         this.width = 100;
         this.height = 100;
+        this.scaleX = this.scaleY = scale;
         this.ref = React.createRef();
-        this.scale = scale;
         this.edit = false;
         this.edit_displayed = false;
         this.color = color;
         this.newly_created = true;
         this.is_copy = is_copy;
+        this.rotation = 0;
+
+        this.update_data = null;
 
         if(!this.is_copy){
             this.create_edit(null);
@@ -25,17 +28,31 @@ export class MText extends Drawable{
 
     draw(callback=null)
     {
-        if(this.newly_created && !this.is_copy){
+        if(this.newly_created && !this.is_copy && this.ref){
             this.newly_created = false;
             callback.create(this);
             this.create_edit(callback);
         }
+
+        if(this.update_data && this.ref.current){
+            this.points[0] = this.update_data.x;
+            this.points[1] = this.update_data.y;
+            this.scaleX = this.update_data.scaleX;
+            this.scaleY = this.update_data.scaleY;
+            this.rotation = this.update_data.rotation;
+            this.text = this.update_data.text;
+            this.update_data = null;
+        }
+
         return(
                 <Text
                 key={this.key}
                 x={this.points[0]}
                 y={this.points[1]}
                 text={this.text}
+                scaleX={this.scaleX}
+                scaleY={this.scaleY}
+                rotation={this.rotation}
                 fontSize={this.font_size}
                 ref={this.ref}
                 fill={this.color}
@@ -55,6 +72,10 @@ export class MText extends Drawable{
                 }}
                 />
             )
+    }
+
+    update(attrs){
+        this.update_data = attrs;
     }
 
     create_edit(callback){
@@ -81,7 +102,7 @@ export class MText extends Drawable{
             this.edit_displayed = false;
 
             if(callback !== null){
-                callback.edit({key: this.key, text: this.text});
+                callback.edit({key: this.key,attrs: this.ref.current.attrs,text: this.text});
             }
             
             let edit_node = document.getElementById('temp-edit-node');

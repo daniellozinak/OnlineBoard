@@ -87,8 +87,6 @@ class Board extends React.Component{
 
         this.socket.on(Constants.CANVAS_DATA,(data)=> {
             let new_data = Util.retrieve_object(data);
-            console.log("new data arrived!");
-            console.log(data);
             this.entities.push(new_data);
         })
 
@@ -107,6 +105,12 @@ class Board extends React.Component{
 
         this.socket.on(Constants.CANVAS_TEXT_EDIT, (data) => {
             this.entities = Util.edit_text(data.key,data.text,this.entities);
+        })
+
+        this.socket.on('canvas-data-edit', (data) => {
+            console.log('edit');
+            console.log(data);
+            this.entities = Util.edit_data(data.key,data.attrs,this.entities);
         })
         
         //TODO: add constant
@@ -205,6 +209,8 @@ class Board extends React.Component{
         if(this.state.mode === Constants.MODE.TEXT){
             this.no_mode();
         }
+
+        console.log(this.entities);
     }
 
     _onMouseMove = e =>{
@@ -370,7 +376,6 @@ class Board extends React.Component{
 
         if(files.length > 0){
             let file = files[0];
-            console.log(file.type);
             if(file.type !== "image/png" && file.type !== "image/jpeg"){
                 return;
             }
@@ -379,7 +384,7 @@ class Board extends React.Component{
             image.src = url;
 
             this.new_entity = new MField(Util.next_key(this.entities),
-            [new_position.x,new_position.y],url,{x: this.state.current_scale ** -1,y:this.state.current_scale ** -1},image);
+            [new_position.x,new_position.y],url,this.state.current_scale ** -1,image);
             this.entities = [this.new_entity,...this.entities];
             this.emit_data();
             this.new_entity = null;
@@ -390,7 +395,7 @@ class Board extends React.Component{
         let data = JSON.parse(e.dataTransfer.getData("element"));
 
         this.new_entity = new MField(Util.next_key(this.entities),
-        [new_position.x,new_position.y],data.src,{x: this.state.current_scale ** -1,y:this.state.current_scale ** -1});
+        [new_position.x,new_position.y],data.src,this.state.current_scale ** -1);
         this.entities = [this.new_entity,...this.entities];
         this.emit_data();
         this.new_entity = null;
@@ -402,7 +407,10 @@ class Board extends React.Component{
         let clickedOn = e.target;
         if('className' in clickedOn.attrs)
         {
-            console.log(this.state.selected_entity);
+            if(this.state.selected_entity.konva_object){
+                this.socket.emit('canvas-data-edit',{key: this.state.selected_entity.custom_object.key,
+                    attrs: this.state.selected_entity.konva_object.attrs});
+            }
             if(clickedOn.attrs.className === "board-stage") {this.setState({selected_entity: {konva_object: null, custom_object: null}})}
         }
     }
@@ -441,17 +449,20 @@ class Board extends React.Component{
     {
         if(this.new_entity !== null && this.new_entity.key >=0)
         {
-            console.log("emitting data");
             this.socket.emit(Constants.CANVAS_DATA  ,this.new_entity);
         }
     }
 
     move_data_callback = (key,points) =>{
+        console.log('move');
         this.socket.emit(Constants.CANVAS_DATA_MOVE,{key: key,points: points});
     }
 
     edit_data_callback = (data) => {
-        this.socket.emit(Constants.CANVAS_TEXT_EDIT,data);
+        let to_emit = {key: data.key,attrs: data.attrs};
+        to_emit = Util.clone_object(to_emit);
+        to_emit.attrs.text = data.text;
+        this.socket.emit('canvas-data-edit',to_emit);
     }
 
     new_data_callback = (data) => {
@@ -522,7 +533,6 @@ class Board extends React.Component{
 
     paste_selected(offset)
     {
-        console.log("paste?");
         for(var i in this.copied_entities)
         {
             let entity = Util.retrieve_object(Util.clone_object(this.copied_entities[i]));
@@ -540,8 +550,6 @@ class Board extends React.Component{
             //emit entity
             this.socket.emit(Constants.CANVAS_DATA  ,entity);
         }
-        //clear copied entities
-        console.log(this.entities);
     }
 
     change_color(in_color){this.setState({color: in_color}); }
@@ -613,7 +621,7 @@ class Board extends React.Component{
                                      select: this.select_image_callback}
                                 ))}
                         })}
-                        <ImageTransformer selected={this.state.selected_entity.konva_object}/>
+                        <ImageTransformer selected={this.state.selected_entity}/>
                     </Layer>
                 </Stage>
             </div>)

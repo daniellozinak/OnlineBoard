@@ -68,7 +68,6 @@ export function retrieve_object(data)
         case "Field":
             return new MField(data.key,data.points,data.src,data.scale);
         case "Text":
-            console.log(new MText(data.key,data.points,data.font_size,data.text,data.scale,true,data.color));
             return new MText(data.key,data.points,data.font_size,data.text,data.scale,true,data.color);
         default:
             return null;
@@ -178,6 +177,20 @@ export function edit_text(key,text,entities)
     if(filtered[i].key === key && 'text' in filtered[i])
     {
       filtered[i].text = text;
+    }
+  }
+  return filtered;
+}
+
+export function edit_data(key,data,entities)
+{
+  var filtered = filter_empty_array(entities);
+  for(var i in filtered)
+  {
+    if(filtered[i].key === key && 'update' in filtered[i])
+    {
+      console.log('found matching key');
+      filtered[i].update(data);
     }
   }
   return filtered;

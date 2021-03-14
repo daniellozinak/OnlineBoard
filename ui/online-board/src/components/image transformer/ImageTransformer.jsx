@@ -11,8 +11,9 @@ class ImageTransformer extends React.Component {
     checkNode() {
       const { selected } = this.props;
       
-      if(selected!== null){
-        this.transformer.attachTo(selected);
+      if(selected.konva_object!== null){
+        this.transformer.attachTo(selected.konva_object);
+        selected.custom_object.update(selected.konva_object.attrs);
       }else{
         this.transformer.detach();
       }

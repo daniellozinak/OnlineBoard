@@ -1,5 +1,6 @@
 import { Drawable } from "./Drawable";
 import {Image} from 'react-konva';
+import React from 'react';
 
 export class MField extends Drawable{
     constructor(key,points,src,scale,image = null)
@@ -9,10 +10,12 @@ export class MField extends Drawable{
         this.src = src;
         this.width = 0;
         this.height = 0;
-        this.scale = scale;
         this.image = image;
+        this.rotation = 0;
+        this.scaleX = this.scaleY = scale;
         this.can_drag = false;
         this.stroke_width = 0;
+        this.ref = React.createRef();
     }
 
     draw(callback=null)
@@ -27,12 +30,15 @@ export class MField extends Drawable{
         return(
                 <Image
                 key={this.key}
+                ref={this.ref}
                 x={this.points[0]}
                 y={this.points[1]}
                 width={this.width}
                 height={this.height}
-                scale={this.scale}
                 image={temp_image}
+                scaleX={this.scaleX}
+                scaleY={this.scaleY}
+                rotation={this.rotation}
                 draggable={this.can_drag}
                 stroke={'#006600'}
                 strokeWidth={this.stroke_width}
@@ -47,6 +53,13 @@ export class MField extends Drawable{
                 }}
             />
             )
+    }
+
+    update(attrs){
+        console.log(attrs);
+        this.scaleX = attrs.scaleX;
+        this.scaleY = attrs.scaleY;
+        this.rotation = attrs.rotation;
     }
 
     get_offset() 
