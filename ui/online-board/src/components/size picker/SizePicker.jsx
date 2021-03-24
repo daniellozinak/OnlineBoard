@@ -1,6 +1,10 @@
 import React from 'react';
 import Slider from '@material-ui/core/Slider';
 import './style.css';
+import {Button} from 'react-bootstrap';
+
+import {ReactComponent as SizeLogo} from "../../assets/icons/size.svg";
+
 
 class SizePicker extends React.Component{
 
@@ -22,7 +26,7 @@ class SizePicker extends React.Component{
     render(){
         return(
             <div className="size">
-                <button  className="button" onClick={() => this.setState({show: !this.state.show})}>Size</button>
+                <Button variant="dark"  className="button" onClick={() => this.setState({show: !this.state.show})}><SizeLogo/></Button>
                 {this.state.show &&
                     <Slider
                     className="slider"

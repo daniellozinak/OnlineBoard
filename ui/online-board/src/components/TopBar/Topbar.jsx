@@ -2,6 +2,8 @@ import React,{lazy} from 'react';
 import {Link} from 'react-router-dom';
 import './style.css';
 import {Navbar,Button} from 'react-bootstrap';
+import {ReactComponent as HomeLogo} from "../../assets/icons/home.svg";
+import {ReactComponent as DrawLogo} from "../../assets/icons/draw.svg";
 
 
 class TopBar extends React.Component{
@@ -15,10 +17,10 @@ class TopBar extends React.Component{
             <Navbar bg="dark" className="top-bar">
                 <div className="draw">
                     <Link className="draw-button" to='/draw'>
-                        <Button variant="success">DRAW</Button>
+                        <DrawLogo/>
                     </Link>
                     <Link className="home-button" to='/'>
-                        <Button variant="secondary">HOME</Button>
+                        <HomeLogo/>
                     </Link>
                 </div>
             </Navbar>

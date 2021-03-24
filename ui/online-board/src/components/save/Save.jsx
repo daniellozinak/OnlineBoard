@@ -2,6 +2,9 @@ import React from 'react';
 import {Modal,Button,Form} from 'react-bootstrap';
 import './style.css'
 
+import {ReactComponent as SaveLogo} from "../../assets/icons/save.svg";
+import {ReactComponent as DropLogo} from "../../assets/icons/drop.svg";
+
 class Save extends React.Component{
 
     constructor(props)
@@ -79,23 +82,28 @@ class Save extends React.Component{
     render(){
         return(
             <div className="save">
-                <Button variant="primary" onClick={this.handleOpen.bind(this)}>Save</Button>
+                <Button variant="success" onClick={this.handleOpen.bind(this)}><SaveLogo/></Button>
                 <Modal show={this.state.show} 
                     onHide={this.handleClose.bind(this)}> 
                     <Modal.Header closeButton>Save or drag n' drop</Modal.Header>
                     <Modal.Body className="body">
-                        <Button onClick={this.save.bind(this)}>Save</Button>
+                        <Button 
+                            className="save-button"
+                            variant="light"
+                            onClick={this.save.bind(this)}>
+                            <SaveLogo/>
+                        </Button>
                         {!this.state.is_over && <div className='dragdrop-off' 
                         onDrop={this._onDrop.bind(this)}
                         onDragOver={this._onDragOver.bind(this)}
                         onDragLeave={this._onDragLeave.bind(this)}>
-                            Drag n Drop 
+                            <DropLogo className='drop-logo'/>
                         </div>}
                         {this.state.is_over && <div className='dragdrop-on' 
                         onDrop={this._onDrop.bind(this)}
                         onDragOver={this._onDragOver.bind(this)}
                         onDragLeave={this._onDragLeave.bind(this)}>
-                            Drag n Drop 
+                            <DropLogo className='drop-logo-active'/>
                         </div>}
                         <p>{this.state.loaded_file !== null ? 'loaded' : 'not loaded'}</p>
                     </Modal.Body>

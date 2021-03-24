@@ -1,6 +1,13 @@
 import React from 'react';
 import './style.css';
 import * as Constants from '../../util/constants.js';
+import {Button} from 'react-bootstrap';
+
+import {ReactComponent as ModeLogo} from "../../assets/icons/draw.svg";
+import {ReactComponent as FreeLogo} from "../../assets/icons/free.svg";
+import {ReactComponent as LineLogo} from "../../assets/icons/line.svg";
+import {ReactComponent as CircleLogo} from "../../assets/icons/circle.svg";
+import {ReactComponent as RectLogo} from "../../assets/icons/rectangle.svg";
 
 class ModePicker extends React.Component{
 
@@ -21,24 +28,24 @@ class ModePicker extends React.Component{
     render(){
         return(
             <div className="mode">
-                <button className="button" onClick={()=>this.setState({show: !this.state.show})}>Mode</button>
+                <Button variant="dark"className="button" onClick={()=>this.setState({show: !this.state.show})}><ModeLogo/></Button>
                 {this.state.show &&
                 <div className="mode-panel-wrapper">
                     <div className="free-draw">
-                        <button className="free-draw-buton" onClick={()=>this._onClick(Constants.MODE.FREE_DRAW)}>
-                        FREE</button>
+                        <Button variant="light" className="free-draw-buton" onClick={()=>this._onClick(Constants.MODE.FREE_DRAW)}>
+                        <FreeLogo/></Button>
                     </div>
                     <div className="line">
-                        <button className="line-buton" onClick={()=>this._onClick(Constants.MODE.LINE)}>
-                        LINE</button>
+                        <Button variant="light" className="line-buton" onClick={()=>this._onClick(Constants.MODE.LINE)}>
+                        <LineLogo/></Button>
                     </div>
                     <div className="circle">
-                        <button className="circle-buton" onClick={()=>this._onClick(Constants.MODE.CIRCLE)}>
-                        CIRCLE</button>
+                        <Button variant="light" className="circle-buton" onClick={()=>this._onClick(Constants.MODE.CIRCLE)}>
+                        <CircleLogo/></Button>
                     </div>
                     <div className="rect">
-                        <button className="rect-buton" onClick={()=>this._onClick(Constants.MODE.RECTANGLE)}>
-                        RECT</button>
+                        <Button variant="light" className="rect-buton" onClick={()=>this._onClick(Constants.MODE.RECTANGLE)}>
+                        <RectLogo/></Button>
                     </div>
                 </div>}
             </div>

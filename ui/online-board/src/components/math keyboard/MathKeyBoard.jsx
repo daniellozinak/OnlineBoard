@@ -1,6 +1,6 @@
 import React from 'react';
 import './style.css';
-
+import {Button} from 'react-bootstrap';
 
 var Direction = {
     LEFT : "Left",
@@ -14,27 +14,31 @@ class MathKeyBoard extends React.Component{
     {
         return(
             <div className="math-keyboard">
-                <button onClick={()=>this.props.update("\\int_{ }^{ }")}>∫</button>
-                <button onClick={()=>this.props.update("\\sum_{ }^{ }")}>∑</button>
-                <button onClick={()=>this.props.update("\\log_{}")}>Log</button>
-                <button onClick={()=>this.props.update("\\lim_{x\\to }")}>Lim</button>
-                <button onClick={()=>this.props.update("\\^{}")}>^x</button>
-                <button onClick={()=>this.props.update("\\sqrt[]{}")}>sqrt</button>
-                <button onClick={()=>this.props.update("\\prod_{}^{}")}>∏</button>
-                <button onClick={()=>this.props.update("\\cdot")}>dot</button>
-                <button onClick={()=>this.props.update("\\pm")}>±</button> 
-                <button onClick={()=>this.props.update("\\frac{}{}")}>x/y</button> 
-                <button onClick={()=>this.props.update("\\times")}>cross</button> 
-                <button onClick={()=>this.props.update("\\infinity")}>∞</button> 
-                <button onClick={()=>this.props.update("\\pi")}>pi</button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\int_{ }^{ }")}>∫</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\sum_{ }^{ }")}>∑</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\log_{}")}>log</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\lim_{x\\to }")}>lim</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\^{}")}>^x</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\sqrt[]{}")}>√</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\prod_{}^{}")}>∏</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\cdot")}>dot</Button>
+                <Button variant="secondary"onClick={()=>this.props.update("\\pm")}>±</Button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\frac{}{}")}>x/y</Button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\infinity")}>∞</Button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\pi")}>π</Button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\neq")}>≠</Button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\leq")}>≤</Button> 
+                <Button variant="secondary"onClick={()=>this.props.update("\\geq")}>≥</Button> 
                 <div className="math-panel-keyboard-control">
-                    <button className="button-up" onClick={()=>this.props.move(Direction.UP)}>↑</button>
-                    <button className="button-down" onClick={()=>this.props.move(Direction.DOWN)}>↓</button>
-                    <button className="button-right" onClick={()=>this.props.move(Direction.RIGHT)}>→</button>
-                    <button className="button-left" onClick={()=>this.props.move(Direction.LEFT)}>←</button>
+                    <Button variant="secondary"className="button-left" onClick={()=>this.props.move(Direction.LEFT)}>←</Button>
+                    <Button variant="secondary"className="button-up" onClick={()=>this.props.move(Direction.UP)}>↑</Button>
+                    <Button variant="secondary"className="button-right" onClick={()=>this.props.move(Direction.RIGHT)}>→</Button>
+                    <Button variant="secondary"className="button-down" onClick={()=>this.props.move(Direction.DOWN)}>↓</Button>
                 </div>
-                <button onClick={()=>this.props.clear()}>clear</button>
-                <button onClick={()=>this.props.addItem()}>add</button>
+                <div className="math-panel-manipulate">
+                    <Button variant="danger" className="button-clear" onClick={()=>this.props.clear()}>clear</Button>
+                    <Button variant="success" className="button-add" onClick={()=>this.props.addItem()}>add</Button>
+                </div>
             </div>
         )
     }

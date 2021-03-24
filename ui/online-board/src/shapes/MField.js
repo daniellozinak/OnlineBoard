@@ -56,7 +56,8 @@ export class MField extends Drawable{
     }
 
     update(attrs){
-        console.log(attrs);
+        this.points[0] = attrs.x;
+        this.points[1] = attrs.y;
         this.scaleX = attrs.scaleX;
         this.scaleY = attrs.scaleY;
         this.rotation = attrs.rotation;

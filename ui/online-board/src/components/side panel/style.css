@@ -2,9 +2,10 @@
 .panel{
     position: absolute;
     z-index: 2;
-    top: 5em;
+    top: 10%;
     left: 2em;
-
+    text-align: center;
+    min-height: 35%;
 }
 .color-picker{
    position: absolute;
@@ -14,30 +15,30 @@
 
 .size-picker{
     position: absolute;
-    top:2em;
+    top:3em;
     left:2em;
 }
 
 .mode-picker{
     position: absolute;
     left:2em;
-    top:6em;
+    top:8em;
 }
 
 .text{
     position: absolute;
     left: 1em;
-    top: 12em
+    top: 17em
 }
 
 .panning{
     position: absolute;
     left:1em;
-    top:8em;
+    top:11em;
 }
 
 .select{
     position: absolute;
     left: 1em;
-    top: 10em
+    top: 14em
 }

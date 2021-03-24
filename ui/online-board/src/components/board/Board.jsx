@@ -108,8 +108,6 @@ class Board extends React.Component{
         })
 
         this.socket.on('canvas-data-edit', (data) => {
-            console.log('edit');
-            console.log(data);
             this.entities = Util.edit_data(data.key,data.attrs,this.entities);
         })
         
@@ -432,7 +430,7 @@ class Board extends React.Component{
 
 
       let offset_x = 40;
-      let offset_y = 120;
+      let offset_y = 130;
 
       let x_diff =  stage.absolutePosition().x;
       let y_diff =  stage.absolutePosition().y;
@@ -454,7 +452,6 @@ class Board extends React.Component{
     }
 
     move_data_callback = (key,points) =>{
-        console.log('move');
         this.socket.emit(Constants.CANVAS_DATA_MOVE,{key: key,points: points});
     }
 

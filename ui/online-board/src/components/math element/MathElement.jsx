@@ -1,7 +1,17 @@
 import React from 'react';
 import './style.css';
+import {Card} from 'react-bootstrap';
 
 class MathElement extends React.Component{
+
+    constructor(props){
+        super(props);
+        this.state={
+            src: ''
+        }
+
+        this.state.src = this.props.src.replace('&color=black','&color=white');
+    }
 
 
     onDragStart = (e,data) =>{
@@ -11,12 +21,12 @@ class MathElement extends React.Component{
 
     render(){
         return(
-            <div className="math-element" draggable onDragStart={(e) => this.onDragStart(e,this.props)}>
+            <Card bg="dark" className="math-element" draggable onDragStart={(e) => this.onDragStart(e,this.props)}>
                 <button className="delete-button" onClick={()=>{this.props.delete_callback(this.props.id)}}/>
-                <img className="math-image" src={this.props.src}></img>
-            </div>
+                <img className="math-image" src={this.state.src}></img>
+            </Card>
         )
     }
 }
 
-export default MathElement;
+export default MathElement; 

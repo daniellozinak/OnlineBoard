@@ -1,5 +1,9 @@
 import React from 'react';
 import './style.css';
+import {Button} from 'react-bootstrap';
+
+import {ReactComponent as CopyLogo} from "../../assets/icons/copy.svg";
+import {ReactComponent as DeletLogo} from "../../assets/icons/delete.svg";
 
 class SelectPanel extends React.Component{
   constructor(props)
@@ -52,8 +56,8 @@ class SelectPanel extends React.Component{
        left: this.state.x + "px",
        top: this.state.y + "px"}}
        ref={this.panelRef}>
-        <button  className="select-panel-delete" onClick={this._onClickDelete}>D</button>
-        <button className="select-panel-copy" onClick={this._onClickCopy}>C</button>
+        <Button variant="light"  className="select-panel-delete" onClick={this._onClickDelete}><DeletLogo/></Button>
+        <Button variant="light" className="select-panel-copy" onClick={this._onClickCopy}><CopyLogo/></Button>
       </div>}
       </>
     )

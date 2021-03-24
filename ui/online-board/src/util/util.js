@@ -189,7 +189,6 @@ export function edit_data(key,data,entities)
   {
     if(filtered[i].key === key && 'update' in filtered[i])
     {
-      console.log('found matching key');
       filtered[i].update(data);
     }
   }

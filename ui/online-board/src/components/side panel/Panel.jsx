@@ -1,7 +1,11 @@
 import React,{lazy,Suspense} from 'react';
 import './style.css';
 import * as Constants from '../../util/constants.js';
-import {Card} from 'react-bootstrap';
+import {Card,Button} from 'react-bootstrap';
+
+import {ReactComponent as PanLogo} from "../../assets/icons/pan.svg";
+import {ReactComponent as SelectLogo} from "../../assets/icons/select.svg";
+import {ReactComponent as TextLogo} from "../../assets/icons/text.svg";
 
 
 const ColorPicker = lazy(()=> {return import('../color picker/ColorPicker')});
@@ -45,13 +49,13 @@ class Panel extends React.Component{
                         <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}/>
                     </div>
                     <div className="panning">
-                        <button onClick={this.set_pan.bind(this)}>Pan</button>
+                        <Button variant="dark" onClick={this.set_pan.bind(this)}><PanLogo/></Button>
                     </div>
                     <div className="select">
-                        <button onClick={this.set_select.bind(this)}>Slct</button>
+                        <Button variant="dark" onClick={this.set_select.bind(this)}><SelectLogo/></Button>
                     </div>
                     <div className="text">
-                        <button onClick={()=>{this.change_mode(Constants.MODE.TEXT)}} >T</button>
+                        <Button variant="dark" onClick={()=>{this.change_mode(Constants.MODE.TEXT)}} ><TextLogo/></Button>
                     </div>
                 </Suspense>
             </Card>
@@ -60,28 +64,3 @@ class Panel extends React.Component{
 }
 
 export default Panel;
-
-// render(){
-//     return(
-//         <div className="panel">
-//             <Suspense fallback={this.renderLoader()}>
-//             Side
-//             <div className="color-picker">
-//                     <ColorPicker data={{change_color_function: this.change_color.bind(this)}}/>
-//                 </div>
-//                 <div className="size-picker">
-//                     <SizePicker data={{change_size_function: this.change_size.bind(this)}}/>
-//                 </div>
-//                 <div className="mode-picker">
-//                     <ModePicker data={{change_mode_function: this.change_mode.bind(this)}}/>
-//                 </div>
-//                 <div className="panning">
-//                     <button onClick={this.set_pan.bind(this)}>Pan</button>
-//                 </div>
-//                 <div className="select">
-//                     <button onClick={this.set_select.bind(this)}>Slct</button>
-//             </div>
-//             </Suspense>
-//         </div>
-//     )
-// }

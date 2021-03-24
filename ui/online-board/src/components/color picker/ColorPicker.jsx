@@ -1,6 +1,9 @@
 import React from 'react';
 import {TwitterPicker} from 'react-color';
 import './style.css';
+import {Button} from 'react-bootstrap';
+
+import {ReactComponent as ColorLogo} from "../../assets/icons/color.svg";
 
 class ColorPicker extends React.Component{
 
@@ -23,7 +26,7 @@ class ColorPicker extends React.Component{
     {
         return(
             <div className="color">
-                <button className="button" onClick={()=>this.setState((state)=>({show: !state.show}))}>Color</button>
+                <Button variant="dark" className="button" onClick={()=>this.setState((state)=>({show: !state.show}))}><ColorLogo/></Button>
                 {this.state.show && (
                 <TwitterPicker
                 className="picker"

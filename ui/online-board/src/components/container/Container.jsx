@@ -4,8 +4,6 @@ import './style.css';
 
 const Board = lazy(()=> {return import('../board/Board')});
 const TopBar = lazy(()=>{return import('../TopBar/Topbar')});
-const Login = lazy(()=>{return import('../login/Login')});
-const Register = lazy(()=>{return import('../register/Register')});
 const Home = lazy(()=>{return import('../home/Home')});
 
 class Container extends React.Component{
@@ -42,8 +40,6 @@ class Container extends React.Component{
                         <TopBar/>
                         <Switch>
                             <Route path='/draw' component={() => {return <Board ref={this.onRefChange} />}}/>
-                            <Route path='/login' exact component={Login}/>
-                            <Route path='/register' exact component={Register}/>
                             <Route path='/' exact component={Home}/>
                             <Route path="/" render={()=><div>404</div>}/>
                         </Switch>

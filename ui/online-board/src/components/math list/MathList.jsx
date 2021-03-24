@@ -3,6 +3,8 @@ import './style.css';
 import * as Constants from "../../util/constants";
 import { addStyles} from 'react-mathquill';
 
+import {Card} from 'react-bootstrap';
+
 const MathKeyBoard = lazy(()=> {return import('../math keyboard/MathKeyBoard')});
 const EditableMathField = lazy(()=> {return import('react-mathquill')})
 const MathElement = lazy(()=>{return import('../math element/MathElement')});
@@ -101,7 +103,7 @@ class MathList extends React.Component{
     render()
     {
         return(
-            <div className="math-list">Math
+            <Card bg="dark" className="math-list"> Math Keyboard
             <Suspense fallback={this.renderLoader()}>
                 <MathKeyBoard className="keyboard"
                     addItem={this.add.bind(this)}
@@ -122,7 +124,7 @@ class MathList extends React.Component{
                     })}
                 </div>
             </Suspense>
-            </div>
+            </Card>
         )
     }
 }
