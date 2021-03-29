@@ -557,6 +557,7 @@ class Board extends React.Component{
         try{
             for(var i in data){
                 this.entities.push(Util.retrieve_object(data[i]));
+                this.socket.emit(Constants.CANVAS_DATA,Util.retrieve_object(data[i]));
             }
             this.current_position = this.entities.length - 1;
 

@@ -4,6 +4,7 @@ import './style.css'
 
 import {ReactComponent as SaveLogo} from "../../assets/icons/save.svg";
 import {ReactComponent as DropLogo} from "../../assets/icons/drop.svg";
+import {ReactComponent as LoadedLogo} from "../../assets/icons/loaded.svg";
 
 class Save extends React.Component{
 
@@ -91,7 +92,7 @@ class Save extends React.Component{
                             className="save-button"
                             variant="light"
                             onClick={this.save.bind(this)}>
-                            <SaveLogo/>
+                            <SaveLogo className="save-logo"/>
                         </Button>
                         {!this.state.is_over && <div className='dragdrop-off' 
                         onDrop={this._onDrop.bind(this)}
@@ -105,7 +106,7 @@ class Save extends React.Component{
                         onDragLeave={this._onDragLeave.bind(this)}>
                             <DropLogo className='drop-logo-active'/>
                         </div>}
-                        <p>{this.state.loaded_file !== null ? 'loaded' : 'not loaded'}</p>
+                        <p>{this.state.loaded_file !== null && <LoadedLogo className="loaded"/>}</p>
                     </Modal.Body>
                 </Modal>
             </div>

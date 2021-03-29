@@ -43,3 +43,12 @@
     height: 100%;
     opacity: 1;
 }
+
+.loaded{
+    height: 100%;
+    fill: green;
+}
+
+.save-logo{
+    top: 10px;
+}
