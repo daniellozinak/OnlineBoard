@@ -1,0 +1,14 @@
+.delete-math-button{
+    position: absolute;
+    margin-left: 10%;
+    overflow:hidden;
+    z-index: 2;
+    width: 10%;
+    height: 15%;
+    border-radius: 50%;
+}
+
+.delete-math-button-logo{
+    margin-top: -100%;
+    margin-left: -100%;
+}

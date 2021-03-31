@@ -78,7 +78,6 @@ class Save extends React.Component{
     {
         this.setState({is_over: false});
     }
-    
 
     render(){
         return(
