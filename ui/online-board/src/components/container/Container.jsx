@@ -20,7 +20,7 @@ class Container extends React.Component{
     }
 
     onRefChange = r =>{
-        if(r) 
+        if (r && this.props.history.location.pathname !== '/draw') 
         {
             r.join(this.props.history.location.pathname);
             //this.props.history.push('/draw');
@@ -30,7 +30,7 @@ class Container extends React.Component{
     renderLoader()
     {
         return <p>loading...</p>
-    }
+    }   
 
     render()
     {

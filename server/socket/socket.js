@@ -19,6 +19,12 @@ module.exports = (io) =>{
             //add socket to container
             container.addSocket(socket);
 
+            socket["name"] = data.name;
+
+            if (data.name === '') {
+                socket["name"] = "Unknown " + Date.now();
+            }
+
             //generate new room
             let crypto = require('crypto');
             // let new_room = crypto.randomBytes(20).toString('hex');
@@ -35,14 +41,13 @@ module.exports = (io) =>{
             socket.join(new_room.id);
 
             //emit message back to client
-            socket.emit('created-room',new_room.id);
+            socket.emit('created-room', { room: new_room.id, name: socket.name });
         })
 
         socket.on('canvas-data', (data)=>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
             {
-                console.log('user not in a room');
                 return;
             }
             
@@ -54,7 +59,6 @@ module.exports = (io) =>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
             {
-                console.log('user not in a room');
                 return;
             }
             socket.to(client_room.id).emit('canvas-text-edit',data);
@@ -65,13 +69,13 @@ module.exports = (io) =>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
             {
-                console.log('user not in a room');
                 return;
             }
             socket.to(client_room.id).emit('canvas-data-edit',data);
         })
 
-        socket.on('join-room',(room_id)=>{
+        socket.on('join-room', (data) => {
+            let room_id = data.room;
             room_id = room_id.replace('/draw/','');
             if(room_id === '' || room_id === '/draw') {return;}
 
@@ -90,14 +94,14 @@ module.exports = (io) =>{
 
             container.addSocket(socket);
 
+            socket["name"] = data.name;
             socket.join(room_id);
 
             let room = util.find_room_by_id(rooms,room_id);
             room.connected ++;
 
             socket.emit('joined',{room_id: room.id,content: room.content, pointer: room.pointer});
-            socket.to(room_id).emit('new-user',socket.id);
-            console.log(socket.id + " joined " + room_id);
+            socket.to(room_id).emit('new-user',socket.name);
         })
 
         socket.on('leave-room',function(){
@@ -111,7 +115,6 @@ module.exports = (io) =>{
                 util.remove_room(rooms,client_room);
             }
             else{
-                console.log('someone left...');
                 socket.to(client_room).emit('left',socket.id);
             }
         })
@@ -123,8 +126,6 @@ module.exports = (io) =>{
                 container.removeSocket(socket.id);
             }
             socket.disconnect();
-            console.log('disconnect');
-            console.log(container.sockets);
         })
 
         // content 
@@ -132,13 +133,8 @@ module.exports = (io) =>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
             {
-                console.log('user not in a room');
                 return;
             }
-
-            console.log("current room");
-            console.log(client_room);
-
             util.move_content(client_room.content,data);
             socket.to(client_room.id).emit('canvas-data-move',data);
         })
@@ -147,12 +143,8 @@ module.exports = (io) =>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
             {
-                console.log('user not in a room');
                 return;
             }
-
-            console.log("current room");
-            console.log(client_room);
 
             delete client_room.content[data];
             client_room.pointer --;
@@ -163,7 +155,6 @@ module.exports = (io) =>{
             let client_room = util.find_room(rooms,io.sockets.adapter.rooms);
             if(client_room === null) 
             {
-                console.log('user not in a room');
                 return;
             }
 

@@ -18,6 +18,7 @@
     "react-konva": "^17.0.0-0",
     "react-konva-portal": "^1.0.10",
     "react-mathquill": "^1.0.1",
+    "react-notifications": "^1.7.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "socket.io-client": "^2.3.1",

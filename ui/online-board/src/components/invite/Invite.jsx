@@ -9,7 +9,8 @@ class Invite extends React.Component{
         super(props);
         this.state = {
             show: false,
-            copied: false
+            copied: false,
+            name:''
         }
 
     }
@@ -17,7 +18,7 @@ class Invite extends React.Component{
     invite()
     {
         if(this.props.joined){return;}
-        this.props.create_callback.create_callback();
+        //this.props.create_callback.create_callback();
         this.setState({show:true})
     }
 
@@ -27,6 +28,9 @@ class Invite extends React.Component{
         this.setState({copied: false});
     }
 
+    handleChange(e) {
+        this.setState({ name: e.target.value });
+    }
 
     render()
     {
@@ -42,11 +46,15 @@ class Invite extends React.Component{
                     </Modal.Header>
                     <Modal.Body>
                         <Row>
-                            <Form.Control  readOnly type="text" value={this.props.link}/>
+                            <Form.Control readOnly type="text" value={this.props.link} />
+                            {this.props.name === '' && <Form.Control type="text" placeholder="Username" onChange={this.handleChange.bind(this)} />}
+                            {this.props.name !== '' && <Form.Control type="text" readOnly value={this.props.name} />}
                             <Button 
                             variant="info"
                             onClick={() => {navigator.clipboard.writeText(this.props.link); this.setState({copied:true})}}
-                            >{(this.state.copied) ? 'Copied!' : 'Copy' }</Button>
+                            >{(this.state.copied) ? 'Copied!' : 'Copy'}</Button>
+                            <Button variant="success" onClick={() => this.props.create_callback.create_callback(this.state.name)} >Invite</Button>
+                            
                         </Row>
                     </Modal.Body>
                     <Modal.Footer>

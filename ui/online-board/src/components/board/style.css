@@ -22,3 +22,15 @@
     left: 1em;
     z-index: 2;
 }
+
+.notifications{
+    position: absolute;
+    bottom: 10%;
+    right: 50%;
+}
+
+.join {
+    position: absolute;
+    bottom: 70%;
+    right: 50%;
+}

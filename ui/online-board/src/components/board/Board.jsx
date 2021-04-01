@@ -13,7 +13,8 @@ import {MRect} from '../../shapes/MRect.js';
 import {MField} from '../../shapes/MField.js';
 import {Selector} from '../../shapes/Selector.js';
 import { MText } from '../../shapes/MText.js';
-
+import { NotificationContainer, NotificationManager } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
 import ImageTransformer from '../image transformer/ImageTransformer';
 
 
@@ -21,7 +22,8 @@ const SelectPanel = lazy(()=> {return import('../select panel/SelectPanel')});
 const Panel = lazy(()=> {return import('../side panel/Panel')});
 const MathList = lazy(()=> {return import('../math list/MathList')});
 const Invite = lazy(()=> {return import('../invite/Invite')});
-const Save = lazy(()=> {return import('../save/Save')});
+const Save = lazy(() => { return import('../save/Save') });
+const Join = lazy(() => { return import('../join/Join') });
 
 
 
@@ -35,6 +37,7 @@ class Board extends React.Component{
     current_position=0;
     stage = null;
     selector = null;
+    room = null;
 
     is_dragging = false;
     is_drawing = false;
@@ -48,7 +51,9 @@ class Board extends React.Component{
         super(props);
         this.state = {
             joined: false,
+            new_user: false,
             invite_link: '',
+            username: '',
             mouse_x: 0,
             mouse_y: 0,
             last_mouse_x: 0,
@@ -100,51 +105,52 @@ class Board extends React.Component{
 
         this.socket.on(Constants.CANVAS_DATA_MOVE,(data)=>{
             this.entities = Util.move_entity(data.key,data.points,this.entities);
-            //TODO: update selector (ak ma prijimatel selctor, neposunie sa s entitami)
         })
 
         this.socket.on(Constants.CANVAS_TEXT_EDIT, (data) => {
             this.entities = Util.edit_text(data.key,data.text,this.entities);
         })
 
-        this.socket.on('canvas-data-edit', (data) => {
+        this.socket.on(Constants.CANVAS_DATA_EDIT, (data) => {
             this.entities = Util.edit_data(data.key,data.attrs,this.entities);
         })
         
-        //TODO: add constant
-        this.socket.on("new-user",function(data){
-            console.log('new user ' + data);
+     
+        this.socket.on(Constants.NEW_USER, function (data) {
+            NotificationManager.info(data +  " joined the room");
         })
 
-        this.socket.on('redirect',function(data){
+        this.socket.on(Constants.REDIRECT, function (data) {
             window.location.href = data;
         })
 
-        this.socket.on('created-room',(data) =>{
-            let link = Constants.LOCAL_SERVER_REACT + "/draw/" + data;
-            this.setState({invite_link: link});
+        this.socket.on(Constants.CREATED_ROOM, (data) => {
+            let link = Constants.LOCAL_SERVER_REACT + "/draw/" + data.room;
+            this.setState({ invite_link: link });
+            this.setState({ username: data.name });
+            
             console.log('new room created: ' + link);
         })
 
-        this.socket.on('already-in-room',function()
+        this.socket.on(Constants.ALREADY_IN_ROOM, function ()
         {
             //notification
             console.log('Already in room');
         })
 
-        this.socket.on('invalid-room',function(data){
+        this.socket.on(Constants.INVALID_ROOM, function (data) {
             //throw an error page
             console.log(data + ' is not a valid room');
         })
 
-        this.socket.on('left',function(data){
+        this.socket.on(Constants.LEFT, function (data) {
             console.log(data + ' left');
         })
 
         window.addEventListener('beforeunload', (ev) => 
-        {  
-            this.socket.emit('leave-room',null);
-            this.socket.emit('disconnect',null);
+        {
+            this.socket.emit(Constants.LEAVE_ROOM, null);
+            this.socket.emit(Constants.DISCONNECT, null);
         });
     }
 
@@ -405,8 +411,9 @@ class Board extends React.Component{
         let clickedOn = e.target;
         if('className' in clickedOn.attrs)
         {
-            if(this.state.selected_entity.konva_object){
-                this.socket.emit('canvas-data-edit',{key: this.state.selected_entity.custom_object.key,
+            if (this.state.selected_entity.konva_object) {
+                this.socket.emit(Constants.CANVAS_DATA_EDIT, {
+                    key: this.state.selected_entity.custom_object.key,
                     attrs: this.state.selected_entity.konva_object.attrs});
             }
             if(clickedOn.attrs.className === "board-stage") {this.setState({selected_entity: {konva_object: null, custom_object: null}})}
@@ -459,7 +466,7 @@ class Board extends React.Component{
         let to_emit = {key: data.key,attrs: data.attrs};
         to_emit = Util.clone_object(to_emit);
         to_emit.attrs.text = data.text;
-        this.socket.emit('canvas-data-edit',to_emit);
+        this.socket.emit(Constants.CANVAS_DATA_EDIT, to_emit);
     }
 
     new_data_callback = (data) => {
@@ -551,8 +558,8 @@ class Board extends React.Component{
 
     change_color(in_color){this.setState({color: in_color}); }
     change_size(in_size) {this.setState({thickness: in_size}); }
-    change_mode(in_mode){this.setState({mode: in_mode});}
-    create_room(){ this.socket.emit('new-room',{content: this.entities,pointer: this.current_position}); }
+    change_mode(in_mode) { this.setState({ mode: in_mode }); }
+    create_room(username) { this.socket.emit('new-room', { content: this.entities, pointer: this.current_position, name: username }); }
     load_entities(data){
         try{
             for(var i in data){
@@ -567,7 +574,14 @@ class Board extends React.Component{
         }
     }
 
-    join = function join_room(room) { this.socket.emit('join-room',room);} 
+    join = function join_room(room) {
+        this.setState({ new_user: true });
+        this.room = room;
+    } 
+
+    confirm_join(name) {
+        this.socket.emit('join-room', { room: this.room, name: name });
+    }
 
     render(){
         const items = this.entities;
@@ -575,10 +589,11 @@ class Board extends React.Component{
             <div className="board" 
              onDrop={e=> this._onDrop(e,"complete")}
              onDragOver={e=> this._onDragOver(e)}
-             onContextMenu={(e)=> e.preventDefault()}>
+                onContextMenu={(e) => e.preventDefault()}>
                     <Invite
                         joined={this.state.joined} 
                         link={this.state.invite_link}
+                        name={this.state.username}
                         create_callback={{create_callback: this.create_room.bind(this)}}/>
                     <Panel
                     color_callback={{color_callback: this.change_color.bind(this)}}
@@ -598,6 +613,15 @@ class Board extends React.Component{
                 <div className='save-container'>
                     <Save board={this.entities}
                         load_callback={{load: this.load_entities.bind(this)}}/>
+                </div>
+
+                <div className="notifications">   
+                    <NotificationContainer />
+                </div>
+
+
+                <div className="join">
+                    {this.state.new_user && <Join join_callback={this.confirm_join.bind(this)}/>}
                 </div>
                 
                 <Stage className="board-stage"
