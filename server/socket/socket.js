@@ -11,7 +11,6 @@ module.exports = (io) =>{
             //check if socket already exists
             if(container.isInContainer(socket,container.sockets))
             {
-                console.log(socket.id + " is already in room");
                 socket.emit('already-in-room',null);
                 return;
             }
@@ -87,7 +86,6 @@ module.exports = (io) =>{
 
             if(container.isInContainer(socket,container.sockets))
             {
-                console.log(socket.id + " is already in room");
                 socket.emit('already-in-room',null);
                 return;
             }
@@ -115,7 +113,7 @@ module.exports = (io) =>{
                 util.remove_room(rooms,client_room);
             }
             else{
-                socket.to(client_room).emit('left',socket.id);
+                socket.to(client_room.id).emit('left',socket.name);
             }
         })
 

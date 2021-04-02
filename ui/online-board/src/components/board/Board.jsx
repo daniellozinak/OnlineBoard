@@ -86,7 +86,7 @@ class Board extends React.Component{
 
             this.current_position = room.pointer;
 
-            console.log(room);
+            NotificationManager.success("You have joind a room");
             this.setState({joined: true});
         })
 
@@ -129,22 +129,21 @@ class Board extends React.Component{
             this.setState({ invite_link: link });
             this.setState({ username: data.name });
             
-            console.log('new room created: ' + link);
+            NotificationManager.success("New room created");
         })
 
         this.socket.on(Constants.ALREADY_IN_ROOM, function ()
         {
             //notification
-            console.log('Already in room');
+            NotificationManager.warning("You are already in a room");
         })
 
         this.socket.on(Constants.INVALID_ROOM, function (data) {
-            //throw an error page
-            console.log(data + ' is not a valid room');
+            NotificationManager.warning("Not a valid room");
         })
 
         this.socket.on(Constants.LEFT, function (data) {
-            console.log(data + ' left');
+            NotificationManager.info(data + " left");
         })
 
         window.addEventListener('beforeunload', (ev) => 
