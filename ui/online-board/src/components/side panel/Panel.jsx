@@ -6,6 +6,7 @@ import {Card,Button} from 'react-bootstrap';
 import {ReactComponent as PanLogo} from "../../assets/icons/pan.svg";
 import {ReactComponent as SelectLogo} from "../../assets/icons/select.svg";
 import {ReactComponent as TextLogo} from "../../assets/icons/text.svg";
+import {ReactComponent as NoneLogo} from "../../assets/icons/none.svg";
 
 
 const ColorPicker = lazy(()=> {return import('../color picker/ColorPicker')});
@@ -56,6 +57,9 @@ class Panel extends React.Component{
                     </div>
                     <div className="text">
                         <Button variant="dark" onClick={()=>{this.change_mode(Constants.MODE.TEXT)}} ><TextLogo/></Button>
+                    </div>
+                    <div className="none">
+                        <Button variant="dark" onClick={()=>{this.change_mode(Constants.MODE.NONE)}}><NoneLogo/></Button>
                     </div>
                 </Suspense>
             </Card>

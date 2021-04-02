@@ -5,7 +5,7 @@
     top: 10%;
     left: 2em;
     text-align: center;
-    min-height: 45%;
+    min-height: 50%;
 }
 .color-picker{
    position: absolute;
@@ -41,4 +41,10 @@
     position: absolute;
     left: 1em;
     top: 14em
+}
+
+.none{
+    position: absolute;
+    left: 1em;
+    top: 20em;
 }
